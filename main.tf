@@ -23,6 +23,16 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  region = "us-east-1"
+  alias  = "us-east-1"
+  default_tags {
+    tags = {
+      Environment = "Development"
+      Onwer       = "Ops"
+    }
+  }
+}
 
 
 module "iam" {
@@ -37,3 +47,14 @@ module "state" {
   bucket_name = "jfreeman-tf-state"
 }
 
+// Needs to be in US-East-1
+module "billing-alert" {
+  source = "./modules/billing-alert"
+
+  billing_alert_email = var.billing_alert_email
+  billing_alert_number = var.billing_alert_number
+
+  providers = {
+    aws = aws.us-east-1
+  }
+}

@@ -1,14 +1,12 @@
 variable "aws_account_id" {
   type = string
-
 }
 
-variable "dev_group_users" {
-  type    = list(string)
-  default = ["jfreeman"]
+variable "billing_alert_email" {
+    type = string
 }
 
-variable "admin_group_users" {
-  type    = list(string)
-  default = ["jfreeman"]
+// includes country code
+variable "billing_alert_number" {
+    type = string
 }
