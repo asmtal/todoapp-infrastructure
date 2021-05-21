@@ -105,51 +105,114 @@ resource "aws_iam_policy" "user_password_management" {
 
 data "aws_iam_policy_document" "require_mfa" {
   statement {
-    sid    = "AllowListActions"
+
+    sid = "AllowAllUsersToListAccounts"
+
     effect = "Allow"
+
     actions = [
+      "iam:ListAccountAliases",
       "iam:ListUsers",
-      "iam:ListVirtualMFADevices"
+      "iam:ListVirtualMFADevices",
     ]
-    resources = ["*"]
+
+    resources = [
+      "*"
+    ]
+
   }
+
   statement {
-    sid    = "AllowIndividualUserToListOnlyTheirMFA"
+
+    sid = "AllowIndividualUserToListOnlyTheirOwnMFA"
+
     effect = "Allow"
+
     actions = [
-      "iam:ListUsers"
+      "iam:ListMFADevices",
     ]
+
     resources = [
       "arn:aws:iam::*:mfa/*",
       "arn:aws:iam::*:user/&{aws:username}"
     ]
+
   }
+
   statement {
-    sid    = "AllowIndividualUserToManageTheirOwnMFA"
+
+    sid = "AllowIndividualUserToManageTheirOwnMFA"
+
     effect = "Allow"
+
     actions = [
       "iam:CreateVirtualMFADevice",
       "iam:DeleteVirtualMFADevice",
       "iam:EnableMFADevice",
       "iam:ResyncMFADevice"
     ]
+
     resources = [
       "arn:aws:iam::*:mfa/&{aws:username}",
       "arn:aws:iam::*:user/&{aws:username}"
     ]
+
   }
+
   statement {
-    sid    = "AllowIndividualUserToDeactivateOnlyTheirOwnMFAOnlyWhenUsingMFA"
+
+    sid = "AllowIndividualUserToDeactivateOnlyTheirOwnMFAOnlyWhenUsingMFA"
+
     effect = "Allow"
-    actions = ["iam:DeactivateMFADevice"]
+
+    actions = [
+      "iam:DeactivateMFADevice"
+    ]
+
     resources = [
       "arn:aws:iam::*:mfa/&{aws:username}",
       "arn:aws:iam::*:user/&{aws:username}"
     ]
+
     condition {
       test     = "Bool"
       variable = "aws:MultiFactorAuthPresent"
-      values   = ["true"]
+
+      values = [
+        "true"
+      ]
+    }
+
+  }
+
+  statement {
+
+    sid = "BlockMostAccessUnlessSignedInWithMFA"
+
+    effect = "Deny"
+
+    not_actions = [
+      "iam:CreateVirtualMFADevice",
+      "iam:ListVirtualMFADevices",
+      "iam:EnableMFADevice",
+      "iam:ResyncMFADevice",
+      "iam:ListAccountAliases",
+      "iam:ListUsers",
+      "iam:ListMFADevices",
+      "iam:GetAccountSummary",
+    ]
+
+    resources = [
+      "*"
+    ]
+
+    condition {
+      test     = "BoolIfExists"
+      variable = "aws:MultiFactorAuthPresent"
+
+      values = [
+        "false",
+      ]
     }
   }
 }
