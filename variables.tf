@@ -3,10 +3,10 @@ variable "aws_account_id" {
 }
 
 variable "billing_alert_email" {
-    type = string
+  type = string
 }
 
 // includes country code
 variable "billing_alert_number" {
-    type = string
+  type = string
 }
