@@ -3,6 +3,6 @@ variable "account_id" {
 }
 
 variable "pgp_key" {
-    type = string
-    default = "keybase:joelfreeman"
+  type    = string
+  default = "keybase:joelfreeman"
 }

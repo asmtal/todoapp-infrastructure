@@ -1,27 +1,13 @@
-resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
-
-  tags = {
-    Name        = "main-todo-dev"
-    Environment = "Development"
-    Owner       = "Ops"
-  }
+data "aws_subnet" "vpn" {
+    id = var.subnet_id
 }
 
-resource "aws_subnet" "vpn" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.vpn_subnet_cidr
-  availability_zone = var.az
-
-  tags = {
-    Name        = "vpn"
-    Environment = "Development"
-    Owner       = "Ops"
-  }
+data "aws_vpc" "vpn" {
+    id = var.vpc_id
 }
 
 resource "aws_network_interface" "vpn" {
-  subnet_id       = aws_subnet.vpn.id
+  subnet_id       = data.aws_subnet.vpn.id
   private_ips     = [var.vpn_ip]
   security_groups = [aws_security_group.vpn.id]
 
@@ -33,7 +19,7 @@ resource "aws_network_interface" "vpn" {
 resource "aws_security_group" "vpn" {
   name        = var.sg_name
   description = var.sg_desc
-  vpc_id      = aws_vpc.main.id
+  vpc_id      = data.aws_vpc.main.id
 }
 
 // Allow Web UI traffic to home IP
