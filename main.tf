@@ -6,9 +6,9 @@ terraform {
     }
   }
   backend "s3" {
-    bucket = "jfreeman-tf-state"
-    key    = "terraform.tfstate"
-    region = "ap-southeast-2"
+    bucket         = "jfreeman-tf-state"
+    key            = "terraform.tfstate"
+    region         = "ap-southeast-2"
     dynamodb_table = "jfreeman-tf-state-locking"
   }
 }
@@ -51,10 +51,17 @@ module "state" {
 module "billing-alert" {
   source = "./modules/billing-alert"
 
-  billing_alert_email = var.billing_alert_email
+  billing_alert_email  = var.billing_alert_email
   billing_alert_number = var.billing_alert_number
 
   providers = {
     aws = aws.us-east-1
   }
+}
+
+module "vpn" {
+  source = "./modules/vpn"
+
+  // all the other variables have defaults
+  home_ip = var.home_ip
 }
