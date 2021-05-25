@@ -9,9 +9,9 @@ variable "billing_threshold" {
 }
 
 variable "billing_alert_email" {
-    type = string
+  type = string
 }
 
 variable "billing_alert_number" {
-    type = string
+  type = string
 }

@@ -3,8 +3,8 @@ data "aws_caller_identity" "current" {
 }
 
 resource "aws_organizations_account" "logs" {
-  name      = var.account_names[0]
-  email     = var.account_emails[0]
+  name  = var.account_names[0]
+  email = var.account_emails[0]
   // Cross account access role
   role_name = "Admin"
 
@@ -15,15 +15,15 @@ resource "aws_organizations_account" "logs" {
 }
 
 resource "aws_organizations_account" "dev" {
-  name      = var.account_names[1]
-  email     = var.account_emails[1]
+  name  = var.account_names[1]
+  email = var.account_emails[1]
   // Cross account access role
   role_name = "Admin"
 }
 
 resource "aws_organizations_account" "prod" {
-  name      = var.account_names[2]
-  email     = var.account_emails[2]
+  name  = var.account_names[2]
+  email = var.account_emails[2]
   // Cross account access role
   role_name = "Admin"
 

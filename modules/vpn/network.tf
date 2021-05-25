@@ -1,15 +1,15 @@
 data "aws_subnet" "vpn" {
-    id = var.subnet_id
+  id = var.subnet_id
 }
 
 data "aws_vpc" "vpn" {
-    id = var.vpc_id
+  id = var.vpc_id
 }
 
 resource "aws_network_interface" "vpn" {
-  subnet_id       = data.aws_subnet.vpn.id
-  private_ips     = [var.vpn_ip]
-  security_groups = [aws_security_group.vpn.id]
+  subnet_id         = data.aws_subnet.vpn.id
+  private_ips       = [var.vpn_ip]
+  security_groups   = [aws_security_group.vpn.id]
   source_dest_check = false
 
 

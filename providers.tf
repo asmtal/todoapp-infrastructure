@@ -10,7 +10,7 @@ provider "aws" {
 
 provider "aws" {
   region = "us-east-1"
-  alias  = "us-east-1"
+  alias  = "root-us-east-1"
   default_tags {
     tags = {
       Environment = "Development"
@@ -24,7 +24,7 @@ provider "aws" {
   region = "ap-southeast-2"
   alias  = "prod"
   assume_role {
-    role_arn = "arn:aws:iam::${aws_organizations_account.prod.account_id}:role/Admin"
+    role_arn = "arn:aws:iam::${aws_organizations_account.prod.id}:role/Admin"
   }
   default_tags {
     tags = {
@@ -38,7 +38,7 @@ provider "aws" {
   region = "ap-southeast-2"
   alias  = "dev"
   assume_role {
-    role_arn = "arn:aws:iam::${aws_organizations_account.dev.account_id}:role/Admin"
+    role_arn = "arn:aws:iam::${aws_organizations_account.dev.id}:role/Admin"
   }
   default_tags {
     tags = {
@@ -52,7 +52,7 @@ provider "aws" {
   region = "ap-southeast-2"
   alias  = "logs"
   assume_role {
-    role_arn = "arn:aws:iam::${aws_organizations_account.logs.account_id}:role/Admin"
+    role_arn = "arn:aws:iam::${aws_organizations_account.logs.id}:role/Admin"
   }
   default_tags {
     tags = {
