@@ -13,78 +13,11 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = "ap-southeast-2"
-  default_tags {
-    tags = {
-      Environment = "Development"
-      Onwer       = "Ops"
-    }
-  }
+data "aws_caller_identity" "current" {
 }
 
-provider "aws" {
-  region = "us-east-1"
-  alias  = "us-east-1"
-  default_tags {
-    tags = {
-      Environment = "Development"
-      Onwer       = "Ops"
-    }
-  }
-}
-
-
-// resource "aws_organizations_account" "prod" {
-//   name      = "jfreeman-dev"
-//   email     = "joel+aws-prod@jxel.dev"
-// }
-
-// resource "aws_organizations_account" "dev" {
-//   name      = "jfreeman-dev"
-//   email     = "joel+aws-dev@jxel.dev"
-// }
-
-resource "aws_organizations_organization" "org" {
-
-  aws_service_access_principals = [
-    "cloudtrail.amazonaws.com",
-    "config.amazonaws.com"
-  ]
-
-  feature_set = "ALL"
-}
-
-// TODO:
-// Add GuardDuty
-// Add Config
-// Add SecurityHb
-// Add CloudTrail
-// Add roles in each Account
-
-resource "aws_organizations_account" "security" {
-  name      = var.security_account_name
-  email     = var.security_account_email
-  role_name = "Admin"
-
-resource "aws_organizations_account" "logs" {
-  name      = var.logs_account_name
-  email     = var.logs_account_email
-  role_name = "Admin"
-}
-
-resource "aws_organizations_account" "dev" {
-  name      = var.dev_account_name
-  email     = var.dev_account_email
-  role_name = "Admin"
-}
-
-resource "aws_organizations_account" "prod" {
-  name      = var.prod_account_name
-  email     = var.prod_account_email
-  role_name = "Admin"
-}
-
+// TODO: Add CloudTrail, GuardDuty, SecurityHub
+// TODO: Add IAM Roles in Each account.
 
 module "iam" {
   source     = "./modules/iam"
