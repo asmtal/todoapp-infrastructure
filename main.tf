@@ -13,31 +13,26 @@ terraform {
   }
 }
 
-provider "aws" {
-  region = "ap-southeast-2"
-  default_tags {
-    tags = {
-      Environment = "Development"
-      Onwer       = "Ops"
-    }
-  }
-}
-
-provider "aws" {
-  region = "us-east-1"
-  alias  = "us-east-1"
-  default_tags {
-    tags = {
-      Environment = "Development"
-      Onwer       = "Ops"
-    }
-  }
-}
-
+// TODO: Add CloudTrail, GuardDuty, SecurityHub
+// TODO: Add IAM Roles in Each account.
 
 module "iam" {
-  source     = "./modules/iam"
-  account_id = var.aws_account_id
+  source          = "./modules/iam"
+  account_id      = var.aws_account_id
+  dev_account_id  = aws_organizations_account.dev.id
+  prod_account_id = aws_organizations_account.prod.id
+
+  dev_admin_role_users  = ["jfreeman"]
+  dev_dev_role_users    = ["jfreeman"]
+  prod_dev_role_users   = ["jfreeman"]
+  prod_admin_role_users = ["jfreeman"]
+
+
+  providers = {
+    aws      = aws
+    aws.prod = aws.prod
+    aws.dev  = aws.dev
+  }
 }
 
 module "state" {
@@ -55,6 +50,6 @@ module "billing-alert" {
   billing_alert_number = var.billing_alert_number
 
   providers = {
-    aws = aws.us-east-1
+    aws = aws.root-us-east-1
   }
 }
