@@ -108,3 +108,112 @@ resource "aws_iam_user_login_profile" "terraform" {
   user    = aws_iam_user.terraform.name
   pgp_key = var.pgp_key
 }
+
+
+module "dev_iam_assumable_roles" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-roles"
+  version = "~> 3.0"
+
+  trusted_role_arns = [
+    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+  ]
+
+  create_admin_role       = true
+  admin_role_requires_mfa = true
+  admin_role_name         = "administrator"
+
+  create_poweruser_role       = true
+  poweruser_role_requires_mfa = true
+  poweruser_role_name         = "developer"
+
+  create_readonly_role       = true
+  readonly_role_requires_mfa = true
+
+  providers = {
+    aws = aws.dev
+  }
+}
+
+module "prod_iam_assumable_roles" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-roles"
+  version = "~> 3.0"
+
+  trusted_role_arns = [
+    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+  ]
+
+  create_admin_role       = true
+  admin_role_requires_mfa = true
+  admin_role_name         = "administrator"
+
+  create_poweruser_role       = true
+  poweruser_role_requires_mfa = true
+  poweruser_role_name         = "developer"
+
+  create_readonly_role       = true
+  readonly_role_requires_mfa = true
+
+  providers = {
+    aws = aws.prod
+  }
+}
+
+// ADD GROUP TO ALLOW PROD ADMIN ACCESS
+
+module "iam_group_with_assumable_roles_policy_prod_admin" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-assumable-roles-policy"
+  version = "~> 3.0"
+
+  name = "prod-admin"
+
+  assumable_roles = [
+    "arn:aws:iam::${var.prod_account_id}:role/administrator"
+  ]
+
+  group_users = var.prod_admin_users
+}
+
+// ADD GROUP TO ALLOW PROD ACCOUNT DEV ROLE ACCESS
+
+module "iam_group_with_assumable_roles_policy_prod_dev" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-assumable-roles-policy"
+  version = "~> 3.0"
+
+  name = "prod-admin"
+
+  assumable_roles = [
+    "arn:aws:iam::${var.prod_account_id}:role/developer"
+  ]
+
+  group_users = var.prod_dev_users
+}
+
+// ADD GROUP TO ALLOW DEV ADMIN ACCESS 
+
+module "iam_group_with_assumable_roles_policy_dev_admin" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-assumable-roles-policy"
+  version = "~> 3.0"
+
+  name = "prod-admin"
+
+  assumable_roles = [
+    "arn:aws:iam::${var.dev_account_id}:role/administrator"
+  ]
+
+  group_users = var.dev_dev_role_users
+}
+
+// ADD GROUP TO ALLOW DEV ACCOUNT DEV ROLE ACCESS
+
+module "iam_group_with_assumable_roles_policy_dev_dev_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-assumable-roles-policy"
+  version = "~> 3.0"
+
+  name = "prod-admin"
+
+  assumable_roles = [
+    "arn:aws:iam::${var.dev_account_id}:role/developer"
+  ]
+
+  group_users = var.dev_dev_role_users
+}
