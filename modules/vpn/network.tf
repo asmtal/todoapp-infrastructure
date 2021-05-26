@@ -6,16 +6,6 @@ data "aws_vpc" "vpn" {
     id = var.vpc_id
 }
 
-resource "aws_network_interface" "vpn" {
-  subnet_id       = data.aws_subnet.vpn.id
-  private_ips     = [var.vpn_ip]
-  security_groups = [aws_security_group.vpn.id]
-
-  tags = {
-    Name = "vpn-eni"
-  }
-}
-
 resource "aws_security_group" "vpn" {
   name        = var.sg_name
   description = var.sg_desc

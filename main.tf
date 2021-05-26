@@ -40,6 +40,14 @@ module "iam" {
   account_id = var.aws_account_id
 }
 
+module "vpn" {
+  source = "./modules/vpn"
+
+  instance_name = "syd-rhel8.4-pritunl-0"
+  key_pair_name = "pritunl-key"
+  pub_key       = var.pub_key
+}
+
 module "state" {
   source = "./modules/state"
 
