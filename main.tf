@@ -38,9 +38,45 @@ module "iam" {
 module "vpn" {
   source = "./modules/vpn"
 
-  instance_name = "syd-rhel8.4-pritunl-0"
-  key_pair_name = "pritunl-key"
-  pub_key       = var.pub_key
+  instance_name   = "syd-rhel8.4-pritunl-0"
+  key_pair_name   = "pritunl-key"
+  pub_key         = var.pub_key
+  sg_name         = "vpn"
+  sg_desc         = "Opens required ports for Pritunl VPN and its Web UI."
+  subnet_id       = element(module.vpc-dev.public_subnets, length(module.vpc-dev.public_subnets) - 1)
+  vpc_id          = module.vpc-dev.vpc_id
+  vpn_client_cidr = "172.16.1.0/24"
+  home_ip         = var.home_ip
+  webui_port      = 8080
+  vpn_port        = 6823
+  providers = {
+    aws = aws.dev
+  }
+}
+
+module "vpc-dev" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = "todo-app"
+  cidr = "10.0.0.0/16"
+
+  azs             = ["ap-southeast-2a", "ap-southeast-2b", "ap-southeast-2c"]
+  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24", "10.0.104.0/24"]
+
+  enable_nat_gateway   = true
+  single_nat_gateway   = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Terraform   = "true"
+    Environment = "development"
+    Owner       = "Operations"
+  }
+
+  providers = {
+    aws = aws.dev
+  }
 }
 
 module "state" {
@@ -60,35 +96,4 @@ module "billing-alert" {
   providers = {
     aws = aws.root-us-east-1
   }
-<<<<<<< HEAD
 }
-
-// module "vpc" {
-//   source = "terraform-aws-modules/vpc/aws"
-
-//   name = "todo-app"
-//   cidr = "10.0.0.0/16"
-
-//   azs                = ["ap-southeast-2a", "ap-southeast-2b", "ap-southeast-2c"]
-//   private_subnets    = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-//   public_subnets     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24", "10.0.104.0/24"]
-//   enable_nat_gateway = true
-
-//   tags = {
-//     Terraform   = "true"
-//     Environment = "Development"
-//   }
-// }
-
-// module "vpn" {
-//   source = "./modules/vpn"
-
-//   // all the other variables have defaults
-//   home_ip = var.home_ip
-//   account_id = var.aws_account_id
-//   subnet_id  = element(module.vpc.public_subnets, length(module.vpc.public_subnets)-1)
-//   vpc_id     = module.vpc.vpc_id
-// }
-=======
-}
->>>>>>> main

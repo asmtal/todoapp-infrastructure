@@ -25,11 +25,8 @@ variable "account_names" {
 
 variable "account_emails" {
   type = list(string)
-<<<<<<< HEAD
 }
 
 variable "pub_key" {
   type = string
-=======
->>>>>>> main
 }

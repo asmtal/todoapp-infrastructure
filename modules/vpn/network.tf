@@ -1,39 +1,15 @@
-data "aws_subnet" "vpn" {
-<<<<<<< HEAD
+data "aws_subnet" "vpn_subnet" {
     id = var.subnet_id
 }
 
 data "aws_vpc" "vpn" {
     id = var.vpc_id
-=======
-  id = var.subnet_id
-}
-
-data "aws_vpc" "vpn" {
-  id = var.vpc_id
-}
-
-resource "aws_network_interface" "vpn" {
-  subnet_id         = data.aws_subnet.vpn.id
-  private_ips       = [var.vpn_ip]
-  security_groups   = [aws_security_group.vpn.id]
-  source_dest_check = false
-
-
-  tags = {
-    Name = "vpn-eni"
-  }
->>>>>>> main
 }
 
 resource "aws_security_group" "vpn" {
   name        = var.sg_name
   description = var.sg_desc
-<<<<<<< HEAD
-  vpc_id      = data.aws_vpc.main.id
-=======
   vpc_id      = data.aws_vpc.vpn.id
->>>>>>> main
 }
 
 // Allow Web UI traffic to home IP

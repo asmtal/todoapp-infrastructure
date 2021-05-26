@@ -9,7 +9,7 @@ variable "instance_name" {
 
 variable "instance_type" {
     type = string
-    default = t3a.small
+    default = "t3a.small"
 }
 
 
@@ -29,7 +29,23 @@ variable "sg_desc" {
     type = string
 }
 
-var "vpc_id" {
+variable "vpc_id" {
+    type = string
+}
+
+variable "webui_port" {
+    type = number
+}
+
+variable "vpn_client_cidr" {
+    type = string
+}
+
+variable "vpn_port" {
+    type = string
+}
+
+variable "home_ip" {
     type = string
 }
 
