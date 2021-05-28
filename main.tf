@@ -35,24 +35,26 @@ module "iam" {
   }
 }
 
-module "vpn" {
-  source = "./modules/vpn"
+// Disabled for now to save costs while not being used.
+// module "vpn" {
+//   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/vpn"
 
-  instance_name   = "syd-rhel8.4-pritunl-0"
-  key_pair_name   = "pritunl-key"
-  pub_key         = var.pub_key
-  sg_name         = "vpn"
-  sg_desc         = "Opens required ports for Pritunl VPN and its Web UI."
-  subnet_id       = element(module.vpc-dev.public_subnets, length(module.vpc-dev.public_subnets) - 1)
-  vpc_id          = module.vpc-dev.vpc_id
-  vpn_client_cidr = "172.16.1.0/24"
-  home_ip         = var.home_ip
-  webui_port      = 8080
-  vpn_port        = 6823
-  providers = {
-    aws = aws.dev
-  }
-}
+//   instance_name   = var.instance_name
+//   key_pair_name   = "pritunl-key"
+//   pub_key         = var.pub_key
+//   sg_name         = "vpn"
+//   sg_desc         = "Opens required ports for Pritunl VPN and its Web UI."
+//   subnet_id       = element(module.vpc-dev.public_subnets, length(module.vpc-dev.public_subnets) - 1)
+//   vpc_id          = module.vpc-dev.vpc_id
+//   vpn_client_cidr = "172.16.1.0/24"
+//   home_ip         = var.home_ip
+//   webui_port      = 443
+//   vpn_port        = 6823
+//   user_data       = "hostnamectl set-hostname ${var.instance_name}"
+//   providers = {
+//     aws = aws.dev
+//   }
+// }
 
 module "vpc-dev" {
   source = "terraform-aws-modules/vpc/aws"

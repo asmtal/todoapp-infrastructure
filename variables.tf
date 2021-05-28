@@ -30,3 +30,9 @@ variable "account_emails" {
 variable "pub_key" {
   type = string
 }
+
+variable "instance_name" {
+  type = "string"
+  default = "syd-rhel8.4-pritunl-0"
+  
+}
