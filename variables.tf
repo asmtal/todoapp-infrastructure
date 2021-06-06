@@ -26,3 +26,13 @@ variable "account_names" {
 variable "account_emails" {
   type = list(string)
 }
+
+variable "pub_key" {
+  type = string
+}
+
+variable "instance_name" {
+  type = "string"
+  default = "syd-rhel8.4-pritunl-0"
+  
+}
