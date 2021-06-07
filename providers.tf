@@ -34,6 +34,21 @@ provider "aws" {
   }
 }
 
+
+provider "aws" {
+  region = "us-east-1"
+  alias  = "prod-us-east-1"
+  assume_role {
+    role_arn = "arn:aws:iam::${aws_organizations_account.prod.id}:role/Admin"
+  }
+  default_tags {
+    tags = {
+      Environment = "Production"
+      Owner       = "Ops"
+    }
+  }
+}
+
 provider "aws" {
   region = "ap-southeast-2"
   alias  = "dev"
@@ -60,6 +75,11 @@ provider "aws" {
       Owner       = "Ops"
     }
   }
+}
+
+provider "cloudflare" {
+  email     = var.cf_email
+  api_token = var.cf_api_token
 }
 
 // provider "aws" {
