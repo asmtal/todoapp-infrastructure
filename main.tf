@@ -39,14 +39,15 @@ module "iam" {
   }
 }
 
-<<<<<<< Updated upstream
-=======
 module "website" {
   // source = "git::https://github.com/jxeldotdev/jxel.dev.git//tf-module?ref=add-tf-module"
   source = "/home/joel/proj/jxel.dev/tf-module"
   domains = ["jxel.dev", "www.jxel.dev"]
   zone_id = var.zone_id 
   bucket_name = "jxel-dev-site-prod"
+  service_role_group = "website-gh-actions"
+  service_role_name  = "website-gh-actions"
+  
 
   providers = {
     aws = aws.prod
@@ -101,7 +102,6 @@ module "vpc-dev" {
   }
 }
 
->>>>>>> Stashed changes
 module "state" {
   source = "./modules/state"
 

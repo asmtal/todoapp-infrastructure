@@ -23,9 +23,6 @@ output "user_name" {
 output "user_password" {
   value     = module.iam.user_password
   sensitive = true
-<<<<<<< Updated upstream
-}
-=======
 }
 
 // Disabled for now since VPN is off to save costs! :)
@@ -41,4 +38,3 @@ output "user_password" {
 //   value = module.vpn.public_ip
 // }
 
->>>>>>> Stashed changes

@@ -25,8 +25,6 @@ variable "account_names" {
 
 variable "account_emails" {
   type = list(string)
-<<<<<<< Updated upstream
-=======
 }
 
 variable "pub_key" {
@@ -53,5 +51,4 @@ variable "cf_api_token" {
 
 variable "zone_id" {
   type = string
->>>>>>> Stashed changes
 }
