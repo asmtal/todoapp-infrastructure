@@ -115,6 +115,9 @@ resource "aws_iam_user_login_profile" "terraform" {
   pgp_key = var.pgp_key
 }
 
+
+// Policy to block access to 
+
 // This is done so there isn't individual users to manage in each account
 
 module "dev_iam_assumable_roles" {

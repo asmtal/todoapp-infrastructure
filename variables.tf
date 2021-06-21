@@ -34,7 +34,6 @@ variable "pub_key" {
 variable "instance_name" {
   type    = string
   default = "syd-rhel8.4-pritunl-0"
-
 }
 
 

@@ -25,6 +25,7 @@ output "user_password" {
   sensitive = true
 }
 
+
 // // Disabled for now since VPN is off to save costs! :)
 // output "instance_id" {
 //   value = module.vpn.instance_id

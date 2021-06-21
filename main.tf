@@ -39,6 +39,7 @@ module "iam" {
   }
 }
 
+
 module "website" {
   source = "git::https://github.com/jxeldotdev/jxel.dev.git//tf-module"
   domains = ["jxel.dev", "www.jxel.dev"]
@@ -57,6 +58,7 @@ module "website" {
 }
 
 // // Disabled for now to save costs while not being used.
+
 // module "vpn" {
 //   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/vpn"
 
