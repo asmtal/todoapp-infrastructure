@@ -40,23 +40,23 @@ module "iam" {
 }
 
 module "website" {
-  // source = "git::https://github.com/jxeldotdev/jxel.dev.git//tf-module?ref=add-tf-module"
-  source = "/home/joel/proj/jxel.dev/tf-module"
+  source = "git::https://github.com/jxeldotdev/jxel.dev.git//tf-module"
   domains = ["jxel.dev", "www.jxel.dev"]
   zone_id = var.zone_id 
-  bucket_name = "jxel-dev-site-prod"
-  service_role_group = "website-gh-actions"
+  bucket_name = "jxel-dev-prod"
+  service_role_group = "assume-gh-actions-role"
   service_role_name  = "website-gh-actions"
+  service_user       = "website-gh-actions"
+  pgp_key            = "keybase:joelfreeman"
   
 
   providers = {
-    aws = aws.prod
-    aws.cf = aws.prod-us-east-1
+    aws = aws.prod-ue1
     cloudflare = cloudflare
   }
 }
 
-// Disabled for now to save costs while not being used.
+// // Disabled for now to save costs while not being used.
 // module "vpn" {
 //   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/vpn"
 

@@ -37,7 +37,7 @@ provider "aws" {
 
 provider "aws" {
   region = "us-east-1"
-  alias  = "prod-us-east-1"
+  alias  = "prod-ue1"
   assume_role {
     role_arn = "arn:aws:iam::${aws_organizations_account.prod.id}:role/Admin"
   }
