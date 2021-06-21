@@ -79,6 +79,7 @@ module "website" {
 //   }
 // }
 
+/*
 module "vpc-dev" {
   source = "terraform-aws-modules/vpc/aws"
 
@@ -103,6 +104,7 @@ module "vpc-dev" {
     aws = aws.dev
   }
 }
+*/
 
 module "state" {
   source = "./modules/state"
