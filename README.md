@@ -1,7 +1,8 @@
 # todoapp-infrastructure
 
-Terraform configuration for todo app aws infrastructure.
+This repository manages all of my AWS infrastructure.
 
+Terraform configuration for todo app aws infrastructure.
 The following repositories are also part of this project:
 
 * [todoapp-frontend](https://github.com/jxeldotdev/todoapp-frontend)

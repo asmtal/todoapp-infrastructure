@@ -1,8 +1,12 @@
 terraform {
   required_providers {
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = ">= 2.21.0"
+    }
     aws = {
       source  = "hashicorp/aws"
-      version = "3.39.0"
+      version = ">= 3.39.0"
     }
   }
   backend "s3" {
@@ -35,7 +39,26 @@ module "iam" {
   }
 }
 
-// Disabled for now to save costs while not being used.
+
+module "website" {
+  source = "git::https://github.com/jxeldotdev/jxel.dev.git//tf-module"
+  domains = ["jxel.dev", "www.jxel.dev"]
+  zone_id = var.zone_id 
+  bucket_name = "jxel-dev-prod"
+  service_role_group = "assume-gh-actions-role"
+  service_role_name  = "website-gh-actions"
+  service_user       = "website-gh-actions"
+  pgp_key            = "keybase:joelfreeman"
+  
+
+  providers = {
+    aws = aws.prod-ue1
+    cloudflare = cloudflare
+  }
+}
+
+// // Disabled for now to save costs while not being used.
+
 // module "vpn" {
 //   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/vpn"
 

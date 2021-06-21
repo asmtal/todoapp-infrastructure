@@ -32,7 +32,22 @@ variable "pub_key" {
 }
 
 variable "instance_name" {
-  type = "string"
+  type    = string
   default = "syd-rhel8.4-pritunl-0"
-  
+}
+
+
+/* Cloudflare related stuff */
+
+variable "cf_email" {
+  type = string
+}
+
+variable "cf_api_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "zone_id" {
+  type = string
 }
