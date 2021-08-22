@@ -6,7 +6,11 @@ terraform {
     }
     aws = {
       source  = "hashicorp/aws"
+<<<<<<< HEAD
       version = ">=3.40"
+=======
+      version = ">= 3.39.0"
+>>>>>>> 779d250b3b31c37f9deac5284dbff83e547c8bf2
     }
   }
   backend "s3" {
@@ -39,7 +43,26 @@ module "iam" {
   }
 }
 
-// Disabled for now to save costs while not being used.
+
+module "website" {
+  source = "git::https://github.com/jxeldotdev/jxel.dev.git//tf-module"
+  domains = ["jxel.dev", "www.jxel.dev"]
+  zone_id = var.zone_id 
+  bucket_name = "jxel-dev-prod"
+  service_role_group = "assume-gh-actions-role"
+  service_role_name  = "website-gh-actions"
+  service_user       = "website-gh-actions"
+  pgp_key            = "keybase:joelfreeman"
+  
+
+  providers = {
+    aws = aws.prod-ue1
+    cloudflare = cloudflare
+  }
+}
+
+// // Disabled for now to save costs while not being used.
+
 // module "vpn" {
 //   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/vpn"
 
@@ -60,9 +83,15 @@ module "iam" {
 //   }
 // }
 
+<<<<<<< HEAD
 // IAM resources for CI Build
 # module "vpn-ci" {
 #   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/ci"
+=======
+/*
+module "vpc-dev" {
+  source = "terraform-aws-modules/vpc/aws"
+>>>>>>> 779d250b3b31c37f9deac5284dbff83e547c8bf2
 
 #   svc_packer_role_name = {
 #     name = "svc_packer_ci"
@@ -81,6 +110,7 @@ module "iam" {
 #   }
 # }
 
+<<<<<<< HEAD
 # module "vpc-dev" {
 #   source = "terraform-aws-modules/vpc/aws"
 
@@ -105,6 +135,13 @@ module "iam" {
 #     aws = aws.dev
 #   }
 # }
+=======
+  providers = {
+    aws = aws.dev
+  }
+}
+*/
+>>>>>>> 779d250b3b31c37f9deac5284dbff83e547c8bf2
 
 module "state" {
   source = "./modules/state"

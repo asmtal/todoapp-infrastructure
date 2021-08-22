@@ -25,6 +25,7 @@ output "user_password" {
   sensitive = true
 }
 
+<<<<<<< HEAD
 # output "instance_id" {
 #   value = module.vpn.instance_id
 # }
@@ -36,3 +37,36 @@ output "user_password" {
 # output "public_ip" {
 #   value = module.vpn.public_ip
 # }
+=======
+
+// // Disabled for now since VPN is off to save costs! :)
+// output "instance_id" {
+//   value = module.vpn.instance_id
+// }
+
+// output "private_ip" {
+//   value = module.vpn.private_ip
+// }
+
+// output "public_ip" {
+//   value = module.vpn.public_ip
+// }
+
+
+output "website_role_arn" {
+  value = module.website.role_arn
+}
+
+output "website_user_arn" {
+  value = module.website.user_arn
+}
+
+output "website_user_access_key" {
+  value = module.website.user_access_key
+}
+
+output "website_user_secret_key" {
+  value = module.website.user_secret_key
+  sensitive = true
+}
+>>>>>>> 779d250b3b31c37f9deac5284dbff83e547c8bf2
