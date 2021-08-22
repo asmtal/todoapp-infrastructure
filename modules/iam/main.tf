@@ -1,6 +1,7 @@
 data "aws_caller_identity" "current" {}
 
-// Administrators
+
+/* IAM group and role for Administrators */
 resource "aws_iam_role" "administrators" {
   name               = "administrators"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
@@ -20,7 +21,7 @@ resource "aws_iam_group" "administrators" {
   name = "administrators"
 }
 
-// Developers
+/* IAM group and role for Developers  */
 
 resource "aws_iam_role" "developers" {
   name               = "developers"
@@ -57,7 +58,6 @@ resource "aws_iam_group_policy_attachment" "password_management" {
   policy_arn = aws_iam_policy.user_password_management.arn
 }
 
-// Administrator Users
 
 resource "aws_iam_user" "jfreeman" {
   name = "jfreeman"
@@ -85,7 +85,9 @@ resource "aws_iam_user_login_profile" "jfreeman" {
   pgp_key = var.pgp_key
 }
 
-// Terraform Service User
+###########################################
+## Terraform Service User - ROOT Account ##
+###########################################
 
 resource "aws_iam_user" "terraform" {
   name = "terraform"
@@ -115,10 +117,9 @@ resource "aws_iam_user_login_profile" "terraform" {
   pgp_key = var.pgp_key
 }
 
-
-// Policy to block access to 
-
-// This is done so there isn't individual users to manage in each account
+#######################################################
+## Developer and Administrator Roles in Each Account ##
+#######################################################
 
 module "dev_iam_assumable_roles" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-roles"
@@ -143,8 +144,6 @@ module "dev_iam_assumable_roles" {
     aws = aws.dev
   }
 }
-
-// This is done so there isn't individual users to manage in each account
 
 module "prod_iam_assumable_roles" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-roles"

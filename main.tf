@@ -1,8 +1,12 @@
 terraform {
   required_providers {
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = ">= 2.21.0"
+    }
     aws = {
       source  = "hashicorp/aws"
-      version = "3.39.0"
+      version = ">=3.40"
     }
   }
   backend "s3" {
@@ -56,30 +60,51 @@ module "iam" {
 //   }
 // }
 
-module "vpc-dev" {
-  source = "terraform-aws-modules/vpc/aws"
+// IAM resources for CI Build
+# module "vpn-ci" {
+#   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/ci"
 
-  name = "todo-app"
-  cidr = "10.0.0.0/16"
+#   svc_packer_role_name = {
+#     name = "svc_packer_ci"
+#     description = "Role used by Github Actions for vpn-ansible-packer"
+#   }
 
-  azs             = ["ap-southeast-2a", "ap-southeast-2b", "ap-southeast-2c"]
-  private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24", "10.0.104.0/24"]
+#   svc_packer_policy_info = {
+#     name = "svc_packer_ci"
+#     description = "Grants permissions to specific secrets and required permissions for using Packer with EC2"
+#   }
 
-  enable_nat_gateway   = true
-  single_nat_gateway   = true
-  enable_dns_hostnames = true
+#   service_group_name = "svc_packer_ci"
 
-  tags = {
-    Terraform   = "true"
-    Environment = "development"
-    Owner       = "Operations"
-  }
+#   providers = {
+#     aws = aws.dev
+#   }
+# }
 
-  providers = {
-    aws = aws.dev
-  }
-}
+# module "vpc-dev" {
+#   source = "terraform-aws-modules/vpc/aws"
+
+#   name = "todo-app"
+#   cidr = "10.0.0.0/16"
+
+#   azs             = ["ap-southeast-2a", "ap-southeast-2b", "ap-southeast-2c"]
+#   private_subnets = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+#   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24", "10.0.104.0/24"]
+
+#   enable_nat_gateway   = true
+#   single_nat_gateway   = true
+#   enable_dns_hostnames = true
+
+#   tags = {
+#     Terraform   = "true"
+#     Environment = "development"
+#     Owner       = "Operations"
+#   }
+
+#   providers = {
+#     aws = aws.dev
+#   }
+# }
 
 module "state" {
   source = "./modules/state"
@@ -97,5 +122,22 @@ module "billing-alert" {
 
   providers = {
     aws = aws.root-us-east-1
+  }
+}
+
+
+module "website" {
+  source             = "git::git@github.com:jxeldotdev/jxel.dev.git//tf-module"
+  domains            = ["jxel.dev", "www.jxel.dev"]
+  zone_id            = var.zone_id
+  bucket_name        = "jxel-dev-prod"
+  service_role_group = "assume-gh-actions-role"
+  service_role_name  = "website-gh-actions"
+  service_user       = "website-gh-actions"
+  pgp_key            = "keybase:joelfreeman"
+
+  providers = {
+    aws        = aws.prod-ue1
+    cloudflare = cloudflare
   }
 }

@@ -1,4 +1,3 @@
-
 data "aws_caller_identity" "current" {
 }
 
@@ -20,6 +19,7 @@ resource "aws_organizations_account" "dev" {
   // Cross account access role
   role_name = "Admin"
 }
+
 
 resource "aws_organizations_account" "prod" {
   name  = var.account_names[2]
