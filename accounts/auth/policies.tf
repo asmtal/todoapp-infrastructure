@@ -1,52 +1,3 @@
-data "aws_iam_policy_document" "admins_group_policy" {
-  statement {
-    effect    = "Allow"
-    actions   = ["sts:AssumeRole"]
-    resources = [aws_iam_role.administrators.arn]
-    condition {
-      test     = "BoolIfExists"
-      variable = "aws:MultiFactorAuthPresent"
-      values   = ["true"]
-    }
-  }
-}
-
-resource "aws_iam_policy" "administrators" {
-  name   = "administrators-policy"
-  policy = data.aws_iam_policy_document.admins_group_policy.json
-}
-
-data "aws_iam_policy_document" "devs_group_policy" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    resources = [aws_iam_role.developers.arn]
-    condition {
-      test     = "BoolIfExists"
-      variable = "aws:MultiFactorAuthPresent"
-      values   = ["true"]
-    }
-  }
-}
-
-resource "aws_iam_policy" "developers" {
-  name   = "developers-policy"
-  policy = data.aws_iam_policy_document.devs_group_policy.json
-}
-
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "AWS"
-      identifiers = ["arn:aws:iam::${var.account_id}:root"]
-    }
-  }
-}
-
 data "aws_iam_policy_document" "user_password_management" {
   statement {
     sid    = "AllowViewAccountInfo"
@@ -103,7 +54,7 @@ resource "aws_iam_policy" "user_password_management" {
   policy = data.aws_iam_policy_document.user_password_management.json
 }
 
-data "aws_iam_policy_document" "require_mfa_policy" {
+data "aws_iam_policy_document" "require_mfa" {
   statement {
 
     sid = "AllowAllUsersToListAccounts"
@@ -219,5 +170,5 @@ data "aws_iam_policy_document" "require_mfa_policy" {
 
 resource "aws_iam_policy" "require_mfa" {
   name   = "RequireAndAllowUsersToManageOwnMFA"
-  policy = data.aws_iam_policy_document.require_mfa_policy.json
+  policy = data.aws_iam_policy_document.require_mfa.json
 }

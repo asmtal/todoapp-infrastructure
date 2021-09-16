@@ -103,7 +103,7 @@ resource "aws_iam_policy" "user_password_management" {
   policy = data.aws_iam_policy_document.user_password_management.json
 }
 
-data "aws_iam_policy_document" "require_mfa_policy" {
+data "aws_iam_policy_document" "require_mfa" {
   statement {
 
     sid = "AllowAllUsersToListAccounts"
@@ -219,5 +219,5 @@ data "aws_iam_policy_document" "require_mfa_policy" {
 
 resource "aws_iam_policy" "require_mfa" {
   name   = "RequireAndAllowUsersToManageOwnMFA"
-  policy = data.aws_iam_policy_document.require_mfa_policy.json
+  policy = data.aws_iam_policy_document.require_mfa.json
 }

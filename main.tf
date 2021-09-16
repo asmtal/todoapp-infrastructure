@@ -6,11 +6,7 @@ terraform {
     }
     aws = {
       source  = "hashicorp/aws"
-<<<<<<< HEAD
       version = ">=3.40"
-=======
-      version = ">= 3.39.0"
->>>>>>> 779d250b3b31c37f9deac5284dbff83e547c8bf2
     }
   }
   backend "s3" {
@@ -19,6 +15,44 @@ terraform {
     region         = "ap-southeast-2"
     dynamodb_table = "jfreeman-tf-state-locking"
   }
+}
+
+resource "aws_organizations_account" "logs" {
+  name  = var.account_names[0]
+  email = var.account_emails[0]
+  // Cross account access role
+  role_name = "Admin"
+
+  tags = {
+    Environment = "Logging"
+    Owner       = "Ops"
+  }
+}
+
+resource "aws_organizations_account" "dev" {
+  name  = var.account_names[1]
+  email = var.account_emails[1]
+  // Cross account access role
+  role_name = "Admin"
+}
+
+
+resource "aws_organizations_account" "prod" {
+  name  = var.account_names[2]
+  email = var.account_emails[2]
+  // Cross account access role
+  role_name = "Admin"
+}
+
+resource "aws_organizations_organization" "org" {
+
+  aws_service_access_principals = [
+    "cloudtrail.amazonaws.com",
+    "config.amazonaws.com",
+    "access-analyzer.amazonaws.com",
+  ]
+
+  feature_set = "ALL"
 }
 
 // TODO: Add CloudTrail, GuardDuty, SecurityHub
@@ -44,22 +78,6 @@ module "iam" {
 }
 
 
-module "website" {
-  source = "git::https://github.com/jxeldotdev/jxel.dev.git//tf-module"
-  domains = ["jxel.dev", "www.jxel.dev"]
-  zone_id = var.zone_id 
-  bucket_name = "jxel-dev-prod"
-  service_role_group = "assume-gh-actions-role"
-  service_role_name  = "website-gh-actions"
-  service_user       = "website-gh-actions"
-  pgp_key            = "keybase:joelfreeman"
-  
-
-  providers = {
-    aws = aws.prod-ue1
-    cloudflare = cloudflare
-  }
-}
 
 // // Disabled for now to save costs while not being used.
 
@@ -83,34 +101,35 @@ module "website" {
 //   }
 // }
 
-<<<<<<< HEAD
 // IAM resources for CI Build
-# module "vpn-ci" {
-#   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/ci"
-=======
-/*
-module "vpc-dev" {
-  source = "terraform-aws-modules/vpc/aws"
->>>>>>> 779d250b3b31c37f9deac5284dbff83e547c8bf2
+module "vpn-ci" {
+  source = "../vpn-ansible-packer/terraform/ci"
 
-#   svc_packer_role_name = {
-#     name = "svc_packer_ci"
-#     description = "Role used by Github Actions for vpn-ansible-packer"
-#   }
+  svc_packer_role_name = {
+    name = "PackerServiceRoleForCI"
+    description = "Role used by Github Actions for vpn-ansible-packer"
+  }
 
-#   svc_packer_policy_info = {
-#     name = "svc_packer_ci"
-#     description = "Grants permissions to specific secrets and required permissions for using Packer with EC2"
-#   }
+  svc_packer_policy_info = {
+    name = "PackerEC2PolicyForCI"
+    description = "Grants permissions to specific secrets and required permissions for using Packer with EC2"
+  }
 
-#   service_group_name = "svc_packer_ci"
+  svc_secretsmanager_policy_info = {
+    name = "PackerSecretsManagerPolicyForCI"
+    description = "Grants required permissions to access specific secrets used in vpn-ansible-packer project in AWS secrets manager"
+  }
 
-#   providers = {
-#     aws = aws.dev
-#   }
-# }
 
-<<<<<<< HEAD
+  service_group_name = "AllowAssumePackerRole"
+  root_aws_account_id    = var.aws_account_id
+  vault_pass_secret_name = "AnsibleVaultPasswordForPackerCI"
+
+  providers = {
+    aws = aws.dev
+  }
+}
+
 # module "vpc-dev" {
 #   source = "terraform-aws-modules/vpc/aws"
 
@@ -135,13 +154,6 @@ module "vpc-dev" {
 #     aws = aws.dev
 #   }
 # }
-=======
-  providers = {
-    aws = aws.dev
-  }
-}
-*/
->>>>>>> 779d250b3b31c37f9deac5284dbff83e547c8bf2
 
 module "state" {
   source = "./modules/state"
@@ -164,7 +176,7 @@ module "billing-alert" {
 
 
 module "website" {
-  source             = "git::git@github.com:jxeldotdev/jxel.dev.git//tf-module"
+  source             = "git::git@github.com:jxeldotdev/jxel.dev.git//tf-module?ref=main"
   domains            = ["jxel.dev", "www.jxel.dev"]
   zone_id            = var.zone_id
   bucket_name        = "jxel-dev-prod"
