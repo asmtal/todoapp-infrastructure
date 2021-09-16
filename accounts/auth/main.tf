@@ -27,7 +27,7 @@ resource "aws_iam_user" "users" {
 
 resource "aws_iam_access_key" "users" {
   for_each = toset(var.iam_users)
-  user     = aws_iam_user.users[each.key]
+  user     = aws_iam_user.users[each.key].name
   pgp_key  = var.pgp_key
 }
 
@@ -48,7 +48,7 @@ module "iam_group_with_policies" {
 
 module "iam_group_with_assumable_roles_policy_developers" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-assumable-roles-policy"
-  version = "~> 4.3"
+  version = "~> 4.3" 
 
   name = "developer-role-access"
 
