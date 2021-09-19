@@ -27,6 +27,7 @@ locals {
       account_id = var.website_account_id
     }
   }
+  admin_users_list = distinct(concat([var.prod_admin_role_users[*], var.dev_admin_role_users[*]]))
 }
 
 /* cross-account access*/
@@ -59,4 +60,21 @@ module "iam_group_with_assumable_roles_policy_admin_cross_account" {
   ]
 
   group_users = each.value["users"]
+}
+
+/* Policy to grant roles access to Terraform S3 Bucket */
+
+module "iam_group_with_policies_tfstate_admin" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-policies"
+  version = "~> 4.3"
+
+  name = "ManageTerraformState"
+
+  attach_iam_self_management_policy = false
+
+  group_users = var.terraform_state_group_users
+
+  custom_group_policy_arns = [
+    "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/ManageTerraformStatePolicy",
+  ]
 }

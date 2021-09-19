@@ -5,10 +5,10 @@ variable "zone_id" {
 }
 
 variable "cf_email" {
-  type        = string
+  type = string
 }
 
 variable "cf_api_token" {
-  type        = string
+  type = string
 }
 

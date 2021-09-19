@@ -1,8 +1,8 @@
 variable "accounts" {
-  type        = map
-  default     = {
+  type = map(any)
+  default = {
     0 = {
-      name = "jfreeman-logging",
+      name  = "jfreeman-logging",
       email = ""
     }
   }
@@ -10,9 +10,9 @@ variable "accounts" {
 }
 
 variable "account_tags" {
-  type        = list(map)
-  default     = [
-    { 
+  type = list(map(string))
+  default = [
+    {
       Environment = "Logging"
       Owner       = "Ops"
     },
@@ -41,8 +41,8 @@ variable "account_tags" {
 
 
 variable "account_aliases" {
-  type        = map
-  default     = {
+  type = map(any)
+  default = {
     093986075694 = "jfreeman-dev"
     217846142668 = "jfreeman-prod"
     671132023705 = "jfreeman-website-prod"
@@ -50,24 +50,16 @@ variable "account_aliases" {
   description = "description"
 }
 
-
-variable "prod_dev_role_users" {
-  type = list(string)
-}
-
-variable "prod_admin_role_users" {
-  type = list(string)
-}
-
-variable "dev_admin_role_users" {
-  type = list(string)
-}
-
-variable "dev_dev_role_users" {
-  type = list(string)
-}
-
 variable "pgp_key" {
   type    = string
   default = "keybase:joelfreeman"
 }
+
+variable "billing_alert_number" {
+  type        = string
+}
+
+variable "billing_alert_email" {
+  type        = string
+}
+

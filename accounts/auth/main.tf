@@ -48,7 +48,7 @@ module "iam_group_with_policies" {
 
 module "iam_group_with_assumable_roles_policy_developers" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-assumable-roles-policy"
-  version = "~> 4.3" 
+  version = "~> 4.3"
 
   name = "developer-role-access"
 
@@ -59,7 +59,6 @@ module "iam_group_with_assumable_roles_policy_developers" {
   group_users = var.dev_users
 }
 
-
 module "iam_group_with_assumable_roles_policy_administrator" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-group-with-assumable-roles-policy"
   version = "~> 4.3"
@@ -69,5 +68,5 @@ module "iam_group_with_assumable_roles_policy_administrator" {
   assumable_roles = [module.iam_assumable_roles.admin_iam_role_arn]
 
   group_users = var.admin_users
-
 }
+

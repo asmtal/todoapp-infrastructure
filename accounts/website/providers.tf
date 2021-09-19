@@ -4,11 +4,11 @@ terraform {
       source  = "hashicorp/aws"
       version = ">=3.40"
     }
-        cloudflare = {
+    cloudflare = {
       source  = "cloudflare/cloudflare"
       version = ">= 2.21.0"
     }
-    
+
   }
   backend "s3" {
     bucket         = "terraform-state-jfreeman-website-prod"
@@ -19,7 +19,7 @@ terraform {
 }
 
 provider "cloudflare" {
-  email = var.cf_email
+  email     = var.cf_email
   api_token = var.cf_api_token
 }
 

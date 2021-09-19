@@ -23,7 +23,7 @@ output "cross_account_administrator_group_arn" {
 }
 
 output "cross_account_developer_iam_group_arns" {
-  value       = [
+  value = [
     for group in module.iam_group_with_assumable_roles_policy_admin_cross_account : group.group_arn
   ]
   sensitive   = true

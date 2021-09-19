@@ -65,7 +65,6 @@ Conditions:
   UseRoleTrustConditionTag: !Equals [!Ref RoleTrustConditionTag, "Enabled"]
 
 Resources:
-
   KMSKey:
     Type: AWS::KMS::Key
     DeletionPolicy: Retain
@@ -228,6 +227,44 @@ Resources:
       - GenerateNames
       - !Sub "terraform-state-${AWS::AccountId}"
       - !Ref Name
+  
+  StateManagementPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: ManageTerraformStatePolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Sid: ListStateObjects
+          Effect: Allow
+          Action:
+          - s3:ListBucket
+          Resource: !GetAtt StateBucket.Arn
+        - Sid: UpdateStateObjects
+          Effect: Allow
+          Action:
+          - s3:GetObject
+          - s3:PutObject
+          Resource: !Sub
+          - "${Arn}/*"
+          - Arn: !GetAtt StateBucket.Arn
+        - Sid: UpdateLockTable
+          Effect: Allow
+          Action:
+          - dynamodb:GetItem
+          - dynamodb:PutItem
+          - dynamodb:DeleteItem
+          Resource: !GetAtt LockTable.Arn
+        - Sid: DecryptState
+          Effect: Allow
+          Action:
+          - kms:DescribeKey
+          - kms:Encrypt
+          - kms:Decrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey
+          - kms:GenerateDataKeyWithoutPlaintext
+          Resource: !GetAtt KMSKey.Arn
 
   StateBucket:
     Type: AWS::S3::Bucket

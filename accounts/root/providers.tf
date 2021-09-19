@@ -9,6 +9,18 @@ provider "aws" {
   }
 }
 
+provider "aws" {
+  alias  = "us-east-1"
+  region = "us-east-1"
+  default_tags {
+    tags = {
+      Environment = "Production"
+      Account     = "Root"
+      Owner       = "Ops"
+    }
+  }
+}
+
 terraform {
   required_providers {
     aws = {
@@ -17,7 +29,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket         = "jfreeman-tf-state"
+    bucket         = "terraform-state-jfreeman-root"
     key            = "terraform-root.tfstate"
     region         = "ap-southeast-2"
     dynamodb_table = "jfreeman-tf-state-locking"

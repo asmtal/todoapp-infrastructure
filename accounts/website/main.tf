@@ -9,7 +9,7 @@ module "website" {
   pgp_key            = "keybase:joelfreeman"
 
   providers = {
-    aws = aws
+    aws        = aws
     cloudflare = cloudflare
   }
 }

@@ -43,6 +43,11 @@ variable "dev_admin_role_users" {
   description = "List of users to grant access to assume Administrator role in Development account"
 }
 
+variable "terraform_state_group_users" {
+  type = list(string)
+}
+
+
 variable "pgp_key" {
   type        = string
   default     = "keybase:joelfreeman"

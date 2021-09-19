@@ -18,3 +18,15 @@ resource "aws_organizations_organization" "org" {
 
   feature_set = "ALL"
 }
+
+
+module "billing-alert" {
+  source = "../../modules/billing-alert"
+
+  billing_alert_email  = var.billing_alert_email
+  billing_alert_number = var.billing_alert_number
+
+  providers = {
+    aws = aws.us-east-1
+  }
+}
