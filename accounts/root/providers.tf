@@ -2,6 +2,7 @@ provider "aws" {
   region = "ap-southeast-2"
   default_tags {
     tags = {
+      Managed-By  = "Terraform"
       Environment = "Production"
       Account     = "Root"
       Owner       = "Ops"
@@ -14,6 +15,7 @@ provider "aws" {
   region = "us-east-1"
   default_tags {
     tags = {
+      Managed-By  = "Terraform"
       Environment = "Production"
       Account     = "Root"
       Owner       = "Ops"

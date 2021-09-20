@@ -56,10 +56,10 @@ variable "pgp_key" {
 }
 
 variable "billing_alert_number" {
-  type        = string
+  type = string
 }
 
 variable "billing_alert_email" {
-  type        = string
+  type = string
 }
 

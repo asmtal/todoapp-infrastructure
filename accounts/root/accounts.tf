@@ -1,7 +1,7 @@
 resource "aws_organizations_account" "accounts" {
   for_each = var.accounts
-  name  = each.value["name"]
-  email = each.value["email"]
+  name     = each.value["name"]
+  email    = each.value["email"]
 
   // Cross account access role
   role_name = "Admin"
