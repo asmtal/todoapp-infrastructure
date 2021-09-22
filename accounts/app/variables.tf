@@ -24,7 +24,6 @@ variable "asg_max_size" {
   description = "Maximum number of instances in Autoscaling group"
 }
 
-
 variable "subnets" {
   type = map(list(string))
   default = {
@@ -34,3 +33,62 @@ variable "subnets" {
   }
   description = "Subnets in CIDR notation"
 }
+
+variable "pub_key" {
+  type        = string
+  description = "Public key to add to EC2 Instance (VPN)"
+}
+
+variable "vpn_webui_port" {
+  type        = number
+  description = "Port for VPN's web UI"
+}
+
+variable "vpn_port" {
+  type        = number
+  description = "VPN Port"
+}
+
+variable "vpn_home_ip" {
+  type        = string
+  default     = ""
+  description = "description"
+}
+
+
+variable "zone_id" {
+  type        = string
+  default     = ""
+  description = "description"
+}
+
+variable "vpn_dns_name" {
+  type        = list(string)
+}
+
+variable "cf_email" {
+  type = string
+}
+
+variable "cf_api_token" {
+  type = string
+}
+
+variable "map_accounts" {
+  description = "Additional AWS account numbers to add to the aws-auth configmap."
+  type        = list(string)
+
+  default = [
+    "777777777777",
+    "888888888888",
+  ]
+}
+
+variable "map_users" {
+  type = list(object({
+    userarn  = string
+    username = string
+    groups   = list(string)
+  }))
+}
+

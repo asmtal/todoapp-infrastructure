@@ -14,11 +14,20 @@ provider "aws" {
   }
 }
 
+provider "cloudflare" {
+  email     = var.cf_email
+  api_token = var.cf_api_token
+}
+
 terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = ">=3.40"
+    }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = ">= 2.21.0"
     }
   }
   backend "s3" {
