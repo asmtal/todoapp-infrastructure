@@ -14,3 +14,10 @@ output "packer_ci_secret_key" {
   sensitive   = true
 }
 
+output "vpc_id" {
+  value       = module.vpn_ci_infra.vpc_id
+}
+
+output "vpc_public_subnets" {
+  value       = module.vpn_ci_infra.public_subnets
+}

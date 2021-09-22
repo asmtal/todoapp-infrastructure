@@ -42,12 +42,6 @@ variable "account_tags" {
 
 variable "account_aliases" {
   type = map(any)
-  default = {
-    093986075694 = "jfreeman-dev"
-    217846142668 = "jfreeman-prod"
-    671132023705 = "jfreeman-website-prod"
-  }
-  description = "description"
 }
 
 variable "pgp_key" {

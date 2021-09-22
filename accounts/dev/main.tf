@@ -2,7 +2,7 @@
 data "aws_caller_identity" "current" {}
 
 module "vpn_ci_infra" {
-  source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/ci?ref=add-ci-builds"
+  source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/ci?ref=fix-ci-user-permissions"
 
   svc_packer_role_name = {
     name        = "PackerServiceRoleForCI"
@@ -20,6 +20,6 @@ module "vpn_ci_infra" {
   }
   service_group_name      = "AllowAssumePackerRole"
   root_aws_account_id     = var.aws_auth_account_id
-  vault_pass_secret_name  = "AnsibleVaultPasswordForPackerCI"
+  vault_pass_secret_name  = "AnsibleVaultPasswordForPackerBuilderCI"
   vault_pass_secret_value = var.vault_pass_secret_value
 }

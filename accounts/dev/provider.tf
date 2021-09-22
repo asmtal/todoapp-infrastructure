@@ -2,7 +2,7 @@ provider "aws" {
   region = "ap-southeast-2"
   default_tags {
     tags = {
-      Environment = "Dev"
+      Environment = "Build"
       Account     = "Dev"
       Managed-By  = "Terraform"
       Owner       = "Ops"

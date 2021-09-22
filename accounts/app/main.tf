@@ -64,6 +64,7 @@ resource "aws_security_group" "postgresql" {
 # }
 
 
+/*
 resource "aws_kms_key" "eks" {
   description = "EKS Secret Encryption Key"
 }
@@ -96,3 +97,4 @@ module "eks" {
   map_roles                            = var.map_roles
 }
 
+*/
