@@ -63,7 +63,7 @@ variable "zone_id" {
 }
 
 variable "vpn_dns_name" {
-  type        = list(string)
+  type = list(string)
 }
 
 variable "cf_email" {
@@ -90,5 +90,14 @@ variable "map_users" {
     username = string
     groups   = list(string)
   }))
+}
+
+variable "domain_name" {
+  type = string
+}
+
+variable "aws_region" {
+  type    = string
+  default = "ap-southeast-2"
 }
 

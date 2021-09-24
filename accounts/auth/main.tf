@@ -69,4 +69,3 @@ module "iam_group_with_assumable_roles_policy_administrator" {
 
   group_users = var.admin_users
 }
-

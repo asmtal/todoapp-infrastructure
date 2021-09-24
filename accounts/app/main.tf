@@ -1,53 +1,12 @@
 data "aws_caller_identity" "current" {}
 
-module "vpn" {
-  source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/vpn"
-
-  instance_name   = "todo-app-vpn-${terraform.workspace}"
-  key_pair_name   = "todo-app-vpn-${terraform.workspace}"
-  pub_key         = var.pub_key
-  sg_name         = "${terraform.workspace}-vpn"
-  sg_desc         = "Opens required ports for Pritunl VPN and its Web UI."
-  subnet_id       = element(module.vpc.public_subnets, length(module.vpc.public_subnets) - 1)
-  vpc_id          = module.vpc.vpc_id
-  vpn_client_cidr = "172.16.1.0/24"
-  home_ip         = var.vpn_home_ip
-  webui_port      = var.vpn_webui_port
-  vpn_port        = var.vpn_port
-  user_data       = "hostnamectl set-hostname todo-app-vpn-${terraform.workspace}"
-}
-
-resource "cloudflare_record" "vpn" {
-  zone_id = var.zone_id
-  name    = var.vpn_dns_name[0]
-  value   = module.vpn.public_ip
-  type    = "A"
-  ttl     = 3600
-}
-
-resource "cloudflare_record" "vpn_www" {
-  zone_id = var.zone_id
-  name    = var.vpn_dns_name[1]
-  value   = var.vpn_dns_name[0]
-  type    = "CNAME"
-  ttl     = 3600
-}
-
-
-resource "aws_security_group" "all_worker_mgmt" {
-  name_prefix = "all_worker_mgmt"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-    security_groups = [module.vpn.security_group_id]
-  }
-}
-
 resource "aws_kms_key" "eks" {
   description = "EKS Secret Encryption Key"
+}
+
+
+data "aws_subnet" "vpn_subnet" {
+  id = element(module.vpc.public_subnets, length(module.vpc.public_subnets) - 1)
 }
 
 module "eks" {
@@ -58,8 +17,13 @@ module "eks" {
   vpc_id          = module.vpc.vpc_id
   subnets         = module.vpc.private_subnets
 
-  cluster_create_timeout          = "1h"
-  cluster_endpoint_private_access = true
+  cluster_create_timeout                         = "1h"
+  cluster_endpoint_private_access                = true
+  cluster_create_endpoint_private_access_sg_rule = true
+  cluster_endpoint_private_access_cidrs          = concat(var.subnets["private"], [data.aws_subnet.vpn_subnet.cidr_block])
+  cluster_endpoint_public_access                 = false
+  enable_irsa                                    = true
+
 
   cluster_encryption_config = [
     {
@@ -70,8 +34,21 @@ module "eks" {
 
   worker_groups = [
     {
+      name          = "worker-group-1"
       instance_type = var.instance_type
       asg_max_size  = var.asg_max_size
+      tags = [
+        {
+          "key"                 = "k8s.io/cluster-autoscaler/enabled"
+          "propagate_at_launch" = "false"
+          "value"               = "true"
+        },
+        {
+          "key"                 = "k8s.io/cluster-autoscaler/todo-app-${terraform.workspace}"
+          "propagate_at_launch" = "false"
+          "value"               = "owned"
+        }
+      ]
     }
   ]
   worker_additional_security_group_ids = [aws_security_group.all_worker_mgmt.id]
@@ -79,8 +56,6 @@ module "eks" {
   map_users                            = var.map_users
   map_accounts                         = var.map_accounts
 }
-
-
 
 data "aws_eks_cluster" "cluster" {
   name = module.eks.cluster_id
@@ -94,4 +69,65 @@ provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
   token                  = data.aws_eks_cluster_auth.cluster.token
+}
+
+module "r53_policy" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
+  version = "~> 4.3"
+
+  name        = "CertManagerRoute53Management"
+  path        = "/"
+  description = "Grants required permissions for Cert Manager role to manage route53"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "route53:GetChange",
+      "Resource": "arn:aws:route53:::change/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "route53:ChangeResourceRecordSets",
+        "route53:ListResourceRecordSets"
+      ],
+      "Resource": "arn:aws:route53:::hostedzone/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "route53:ListHostedZonesByName",
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role" "dns_manager" {
+  name = "DNSManager"
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "sts:AssumeRoleWithWebIdentity",
+        "Principal" : {
+          "Federated" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}"
+        },
+        "Condition" : {
+          "StringEquals" : {
+            "oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}:sub" : "system:serviceaccount:cert-manager:cert-manager"
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "test-attach" {
+  role       = aws_iam_role.dns_manager.name
+  policy_arn = module.r53_policy.arn
 }

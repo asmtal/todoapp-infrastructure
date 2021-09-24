@@ -1,3 +1,8 @@
+output "cluster_id" {
+  description = "Endpoint for EKS control plane."
+  value       = module.eks.cluster_id
+}
+
 output "cluster_endpoint" {
   description = "Endpoint for EKS control plane."
   value       = module.eks.cluster_endpoint
@@ -32,4 +37,19 @@ output "public_ip" {
 
 output "security_group_id" {
   value = module.vpn.security_group_id
+}
+
+output "hosted_zone_id" {
+  value     = aws_route53_zone.zone.zone_id
+  sensitive = false
+}
+
+output "hosted_zone_nameservers" {
+  value     = aws_route53_zone.zone.name_servers
+  sensitive = false
+}
+
+output "hosted_zone_arn" {
+  value     = aws_route53_zone.zone.arn
+  sensitive = false
 }

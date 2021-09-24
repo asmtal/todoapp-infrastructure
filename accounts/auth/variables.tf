@@ -70,3 +70,12 @@ variable "dev_account_id" {
 variable "website_account_id" {
   type = string
 }
+
+variable "domain_name" {
+  type        = string
+  description = "Domain name for Route53 Zone"
+}
+
+variable "dev_ns_records" {
+  type        = list(string)
+}
