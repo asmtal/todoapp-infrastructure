@@ -6,10 +6,10 @@ There is many state buckets, one for each account. It also contains an IAM polic
 Usage:
 
 ```sh
-ACCOUNT_NAME="jfreeman-auth"
+ACCOUNT_NAME="jfreeman-dev"
 aws cloudformation create-stack \
 --stack-name terraform-state-$ACCOUNT_NAME \
---template-url "file://terraform-state-backend.template" \
+--template-body "file://terraform-state-backend.template" \
 --parameters ParameterKey=Name,ParameterValue=terraform-state-$ACCOUNT_NAME \
 --capabilities CAPABILITY_NAMED_IAM
 ```

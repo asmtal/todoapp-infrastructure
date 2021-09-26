@@ -98,7 +98,10 @@ module "r53_policy" {
     },
     {
       "Effect": "Allow",
-      "Action": "route53:ListHostedZonesByName",
+      "Action": [
+        "route53:ListHostedZonesByName",
+        "route53:ListHostedZones"
+      ],
       "Resource": "*"
     }
   ]
@@ -106,6 +109,7 @@ module "r53_policy" {
 EOF
 }
 
+// used by cert-manager and 
 resource "aws_iam_role" "dns_manager" {
   name = "DNSManager"
   assume_role_policy = jsonencode({
@@ -119,7 +123,33 @@ resource "aws_iam_role" "dns_manager" {
         },
         "Condition" : {
           "StringEquals" : {
-            "oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}:sub" : "system:serviceaccount:cert-manager:cert-manager"
+            "oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}:sub" : [
+              "system:serviceaccount:cert-manager:cert-manager",
+              "system:serviceaccount:external-dns:external-dns"
+            ]
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "github_actions_terraform" {
+  name = "GitHubActionsTerraform"
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "sts:AssumeRoleWithWebIdentity",
+        "Principal" : {
+          "Federated" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}"
+        },
+        "Condition" : {
+          "StringEquals" : {
+            "oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}:sub" : [
+              "system:serviceaccount:actions-runner-controller:actions-terraform-runner",
+            ]
           }
         }
       }
@@ -130,4 +160,9 @@ resource "aws_iam_role" "dns_manager" {
 resource "aws_iam_role_policy_attachment" "test-attach" {
   role       = aws_iam_role.dns_manager.name
   policy_arn = module.r53_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "github_actions_terraform" {
+  role       = aws_iam_role.github_actions_terraform.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
