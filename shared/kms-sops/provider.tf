@@ -22,7 +22,7 @@ terraform {
   }
   backend "s3" {
     bucket         = "terraform-state-jfreeman-auth"
-    key            = "dev.tfstate"
+    key            = "sops-shared.tfstate"
     region         = "ap-southeast-2"
     dynamodb_table = "terraform-state-jfreeman-auth"
   }

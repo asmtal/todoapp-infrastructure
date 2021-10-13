@@ -75,7 +75,3 @@ variable "domain_name" {
   type        = string
   description = "Domain name for Route53 Zone"
 }
-
-variable "dev_ns_records" {
-  type        = list(string)
-}

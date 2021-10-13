@@ -7,6 +7,10 @@ resource "aws_organizations_account" "accounts" {
   role_name = "Admin"
 
   tags = var.account_tags[each.key]
+
+  lifecycle {
+    ignore_changes = ["role_name"]
+  }
 }
 
 resource "aws_organizations_organization" "org" {
@@ -15,7 +19,6 @@ resource "aws_organizations_organization" "org" {
     "config.amazonaws.com",
     "access-analyzer.amazonaws.com",
   ]
-
   feature_set = "ALL"
 }
 

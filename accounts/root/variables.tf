@@ -34,6 +34,10 @@ variable "account_tags" {
     {
       Environment = "Auth"
       Owner       = "Ops"
+    },
+    {
+      Environment = "Build"
+      Owner       = "Ops"
     }
   ]
   description = "description"

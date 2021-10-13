@@ -1,5 +1,4 @@
-
-data "aws_caller_identity" "current" {}
+// share amis between accounts
 
 module "vpn_ci_infra" {
   source = "github.com/jxeldotdev/vpn-ansible-packer//terraform/ci?ref=fix-ci-user-permissions"
