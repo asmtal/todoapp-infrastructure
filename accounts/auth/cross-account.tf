@@ -1,33 +1,40 @@
 locals {
   admin_users = {
-    0 = {
-      users      = var.prod_admin_role_users
-      account_id = var.prod_account_id
+    production = {
+      users      = var.prod_account_role_users["admin"]
+      account_id = var.account_ids[0]
     }
-    1 = {
-      users      = var.dev_admin_role_users
-      account_id = var.dev_account_id
+    development = {
+      users      = var.dev_account_role_users["admin"]
+      account_id = var.account_ids[1]
     }
-    2 = {
-      users      = var.website_admin_role_users
-      account_id = var.website_account_id
+    personal-website = {
+      users      = var.website_account_role_users["admin"]
+      account_id = var.account_ids[2]
+    }
+    build = {
+      users      = var.build_account_role_users["admin"]
+      account_id = var.account_ids[3]
     }
   }
   dev_users = {
-    0 = {
-      users      = var.prod_dev_role_users
-      account_id = var.prod_account_id
+    production = {
+      users      = var.prod_account_role_users["dev"]
+      account_id = var.account_ids[0]
     }
-    1 = {
-      users      = var.dev_dev_role_users
-      account_id = var.dev_account_id
+    development = {
+      users      = var.dev_account_role_users["dev"]
+      account_id = var.account_ids[1]
     }
-    2 = {
-      users      = var.website_dev_role_users
-      account_id = var.website_account_id
+    personal-website = {
+      users      = var.dev_account_role_users["dev"]
+      account_id = var.account_ids[2]
+    }
+    build = {
+      users      = var.build_account_role_users["dev"]
+      account_id = var.account_ids[3]
     }
   }
-  admin_users_list = distinct(concat([var.prod_admin_role_users[*], var.dev_admin_role_users[*]]))
 }
 
 /* cross-account access*/
@@ -36,7 +43,7 @@ module "iam_group_with_assumable_roles_policy_developer_cross_account" {
   for_each = local.dev_users
   version  = "~> 3.0"
 
-  name = "${each.value["account_id"]}-account-developer-role-access"
+  name = "${each.key}-account-developer-role-access"
 
   assumable_roles = [
     "arn:aws:iam::${each.value["account_id"]}:role/Developer"
@@ -53,7 +60,7 @@ module "iam_group_with_assumable_roles_policy_admin_cross_account" {
   for_each = local.admin_users
 
 
-  name = "${each.value["account_id"]}-account-administrator-role-access"
+  name = "${each.key}-account-administrator-role-access"
 
   assumable_roles = [
     "arn:aws:iam::${each.value["account_id"]}:role/Administrator"

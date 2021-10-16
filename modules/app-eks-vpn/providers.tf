@@ -2,14 +2,15 @@ provider "aws" {
   region = "ap-southeast-2"
   default_tags {
     tags = {
-      Environment = "Build"
-      Account     = "Dev"
       Managed-By  = "Terraform"
+      Environment = "${terraform.workspace}"
+      Account     = "${terraform.workspace}"
+      Application = "Todo"
       Owner       = "Ops"
     }
   }
   assume_role {
-    role_arn = var.iam_role
+    role_arn = var.workspace_iam_roles[terraform.workspace]
   }
 }
 
@@ -22,7 +23,7 @@ terraform {
   }
   backend "s3" {
     bucket         = "terraform-state-jfreeman-auth"
-    key            = "sops-shared.tfstate"
+    key            = "todo-backend-compute.tfstate"
     region         = "ap-southeast-2"
     dynamodb_table = "terraform-state-jfreeman-auth"
   }

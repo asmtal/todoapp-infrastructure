@@ -9,30 +9,21 @@ The following repositories are also part of this project:
 * [todoapp-backend](https://github.com/jxeldotdev/todoapp-backend)
 * [vpn-ansible-packer](https://github.com/jxeldotdev/vpn-ansible-packer)
 
-## Directories
+# Directories
 
-### state
+## cfn
 
-Contains CloudFormation template used to create required resources for terraform state.
+Contains CloudFormation template and an an ansible playbook to apply it in each account.
 
-### shared
+The template creates:
+* Encrypted S3 Bucket (for terraform state) 
+* KMS key (to be used with SOPS to encrypt .tfvars files in this repository)
 
-Shared configuration between all accounts (Excluding auth)
+## modules
 
-### root
+Terraform modules used in multiple accounts.
 
-Config for root AWS Account.
+## accounts
 
-### auth
 
-Confguration for auth / management account.
-
-### dev
-
-required resources for building AMIs. This is used mainly by github actions in the vpn-ansible-packer repo.
-
-### app
-
-Underlying compute infrastructure for todo app. EKS, VPC, Security Groups, VPN, etc.
-This is present in the dev and prod account.
 

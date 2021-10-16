@@ -1,6 +1,6 @@
 variable "iam_users" {
   type        = list(any)
-  description = "List of all users to create"
+  description = "List of all users to create in Authentication Account."
 }
 
 variable "dev_users" {
@@ -13,40 +13,41 @@ variable "admin_users" {
   description = "Users to add to Administrator Group"
 }
 
-variable "prod_admin_role_users" {
-  type        = list(string)
-  description = "List of users to grant access to assume Administrator role in Production account"
+variable "build_account_role_users" {
+  type = map(list(string))
+  default = {
+    dev   = []
+    admin = []
+  }
 }
 
-variable "prod_dev_role_users" {
-  type        = list(string)
-  description = "List of users to grant access to assume Developer role in Production account"
+variable "dev_account_role_users" {
+  type = map(list(string))
+  default = {
+    dev   = []
+    admin = []
+  }
 }
 
-variable "website_admin_role_users" {
-  type        = list(string)
-  description = "List of users to grant access to assume Administrator role in Website account"
+variable "prod_account_role_users" {
+  type = map(list(string))
+  default = {
+    dev   = []
+    admin = []
+  }
 }
 
-variable "website_dev_role_users" {
-  type        = list(string)
-  description = "List of users to grant access to assume Developer role in Website account"
-}
-
-variable "dev_dev_role_users" {
-  type        = list(string)
-  description = "List of users to grant access to assume Developer role in Development account"
-}
-
-variable "dev_admin_role_users" {
-  type        = list(string)
-  description = "List of users to grant access to assume Administrator role in Development account"
+variable "website_account_role_users" {
+  type = map(list(string))
+  default = {
+    dev   = []
+    admin = []
+  }
 }
 
 variable "terraform_state_group_users" {
   type = list(string)
 }
-
 
 variable "pgp_key" {
   type        = string
@@ -54,24 +55,17 @@ variable "pgp_key" {
   description = "PGP Key to encrypt IAM Access Keys with"
 }
 
-variable "account_aliases" {
-  type        = map(any)
-  description = "Map of AWS Account ID and Account Name."
-}
-
-variable "prod_account_id" {
-  type = string
-}
-
-variable "dev_account_id" {
-  type = string
-}
-
-variable "website_account_id" {
-  type = string
-}
-
-variable "domain_name" {
+variable "admin_role" {
   type        = string
-  description = "Domain name for Route53 Zone"
+  description = "Administrator IAM Role ARN"
+}
+
+variable "dev_role" {
+  type        = string
+  description = "Developer IAM Role ARN"
+}
+
+variable "account_ids" {
+  type        = list(number)
+  description = "List of AWS Account IDs"
 }

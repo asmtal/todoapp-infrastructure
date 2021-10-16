@@ -1,0 +1,63 @@
+---
+
+- name: Setup CloudFormation templates for Terraform state and SOPS KMS keys
+  hosts: 127.0.0.1
+  tasks:
+  - name: Include Variables
+    ansible.builtin.include_vars: file=ansible-vars.yaml
+
+  - name: Apply CloudFormation template to Development Account
+    amazon.aws.cloudformation:
+      stack_name: "terraform-state-jfreeman-dev"
+      state: "present"
+      region: "ap-southeast-2"
+      disable_rollback: false
+      template: "./terraform-state-backend.template"
+      profile: "{{ dev_profile }}"
+      template_parameters:
+        Name: terraform-state-jfreeman-dev
+
+
+  - name: Apply CloudFormation template to Production Account
+    amazon.aws.cloudformation:
+      stack_name: "terraform-state-prod"
+      state: "present"
+      region: "ap-southeast-2"
+      disable_rollback: false
+      template: "./terraform-state-backend.template"
+      profile: "{{ prod_profile }}"
+      template_parameters:
+        Name: terraform-state-jfreeman-prod
+
+  - name: Apply CloudFormation template to Auth Account
+    amazon.aws.cloudformation:
+      stack_name: "terraform-state-jfreeman-auth"
+      state: "present"
+      region: "ap-southeast-2"
+      disable_rollback: false
+      template: "./terraform-state-backend.template"
+      profile: "{{ auth_profile }}"
+      template_parameters:
+        Name: terraform-state-jfreeman-auth
+
+  - name: Apply CloudFormation template to Build Account
+    amazon.aws.cloudformation:
+      stack_name: "terraform-state-jfreeman-build"
+      state: "present"
+      region: "ap-southeast-2"
+      disable_rollback: false
+      template: "./terraform-state-backend.template"
+      profile: "{{ build_profile }}"
+      template_parameters:
+        Name: terraform-state-jfreeman-build
+
+  - name: Create S3 Bucket and KMS key for Terraform state and SOPS in Website account
+    amazon.aws.cloudformation:
+      stack_name: "terraform-state-jfreeman-website-prod"
+      state: "present"
+      region: "ap-southeast-2"
+      disable_rollback: false
+      template: "./terraform-state-backend.template"
+      profile: "{{ website_profile }}"
+      template_parameters:
+        Name: terraform-state-jfreeman-website

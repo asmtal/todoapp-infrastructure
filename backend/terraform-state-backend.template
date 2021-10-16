@@ -136,6 +136,31 @@ Resources:
       AliasName: !Sub "alias/${StateBucket}"
       TargetKeyId: !GetAtt KMSKey.Arn
 
+  SopsKMSKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: Used by SOPS for Encryption
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Id: backend
+        Statement:
+        - Sid: EnableKeyManagement
+          Effect: Allow
+          Principal:
+            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+          Action:
+          - '*'
+          Resource: '*'
+
+  SopsKMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: 'alias/sops-encryption-key'
+      TargetKeyId: !GetAtt SopsKMSKey.Arn
+
   LockTable:
     Type: AWS::DynamoDB::Table
     DeletionPolicy: Retain
@@ -459,6 +484,12 @@ Outputs:
   KmsKeyId:
     Description: ID of the KMS key used to encrypt Terraform state
     Value: !GetAtt KMSKey.Arn
+  SopsKmsKeyAlias:
+    Description: Alias of the KMS key used to encrypt files with SOPS 
+    Value: !Ref SopsKMSKeyAlias
+  SopsKmsKeyId:
+    Description: ID of the KMS key used to encrypt files with SOPS
+    Value: !GetAtt SopsKMSKey.Arn
   LockTableName:
     Description: Name of the DynamoDB table used to lock Terraform state
     Value: !Ref LockTable

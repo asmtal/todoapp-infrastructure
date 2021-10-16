@@ -43,11 +43,6 @@ variable "account_tags" {
   description = "description"
 }
 
-
-variable "account_aliases" {
-  type = map(any)
-}
-
 variable "pgp_key" {
   type    = string
   default = "keybase:joelfreeman"
