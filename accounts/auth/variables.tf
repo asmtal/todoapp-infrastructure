@@ -69,3 +69,5 @@ variable "account_ids" {
   type        = list(number)
   description = "List of AWS Account IDs"
 }
+
+variable "dev_account_id" {}

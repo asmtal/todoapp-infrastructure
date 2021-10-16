@@ -25,5 +25,3 @@ Terraform modules used in multiple accounts.
 
 ## accounts
 
-
-

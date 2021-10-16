@@ -47,3 +47,15 @@ module "iam_assumable_roles" {
 
   create_readonly_role = false
 }
+
+resource "aws_route53_zone" "main" {
+  name = "tinakori.dev"
+}
+
+resource "aws_route53_record" "dev-ns" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "dev.tinakori.dev"
+  type    = "NS"
+  ttl     = "30"
+  records = var.dev_ns
+}

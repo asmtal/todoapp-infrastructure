@@ -7,3 +7,8 @@ variable "iam_role_arn" {
   type        = string
   description = "IAM Role used by Terraform"
 }
+
+variable "dev_ns" {
+  type        = list(string)
+  description = "List of Nameserver values for Development Route53 zone"
+}

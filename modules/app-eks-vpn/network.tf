@@ -13,27 +13,18 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_vpn_gateway   = false
 
-  database_subnet_group_name = "todo-backend-${terraform.workspace}"
+  database_subnet_group_name = "todo-backend-${var.environment}"
 
   public_subnet_tags = {
-    "kubernetes.io/cluster/todo-app-${terraform.workspace}" = "shared"
+    "kubernetes.io/cluster/todo-app-${var.environment}" = "shared"
     "kubernetes.io/role/elb"                                = "1"
   }
 
   private_subnet_tags = {
-    "kubernetes.io/cluster/todo-app-${terraform.workspace}" = "shared"
+    "kubernetes.io/cluster/todo-app-${var.environment}" = "shared"
     "kubernetes.io/role/internal-elb"                       = "1"
   }
-
-  tags = {
-    Managed-By  = "Terraform"
-    Application = "Todo"
-    Account     = "${terraform.workspace}"
-    Environment = "${terraform.workspace}"
-    Owner       = "Ops"
-  }
 }
-
 
 resource "aws_security_group" "postgresql" {
   name_prefix = "todo-backend-postgres"

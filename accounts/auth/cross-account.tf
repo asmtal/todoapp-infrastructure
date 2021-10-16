@@ -6,7 +6,7 @@ locals {
     }
     development = {
       users      = var.dev_account_role_users["admin"]
-      account_id = var.account_ids[1]
+      account_id = var.dev_account_id
     }
     personal-website = {
       users      = var.website_account_role_users["admin"]
@@ -24,7 +24,7 @@ locals {
     }
     development = {
       users      = var.dev_account_role_users["dev"]
-      account_id = var.account_ids[1]
+      account_id = var.dev_account_id
     }
     personal-website = {
       users      = var.dev_account_role_users["dev"]
