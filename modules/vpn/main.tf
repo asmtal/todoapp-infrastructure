@@ -7,9 +7,9 @@ module "vpn" {
   pub_key         = var.pub_key
   sg_name         = var.sg_name
   sg_desc         = "Opens required ports for Pritunl VPN and its Web UI."
-  subnet_id       = element(module.vpc.public_subnets, length(module.vpc.public_subnets) - 1)
+  subnet_id       = var.subnet_id
   vpc_id          = var.vpc_id
-  vpn_client_cidr = "172.16.1.0/24"
+  vpn_client_cidr = var.vpn_client_cidr
   home_ip         = var.vpn_home_ip
   webui_port      = var.vpn_webui_port
   vpn_port        = var.vpn_port
@@ -18,7 +18,7 @@ module "vpn" {
 
 resource "aws_route53_record" "vpn" {
   zone_id = var.r53_zone_id
-  name    = "vpn.${var.domain_name}"
+  name    = var.domain_name
   type    = "A"
   ttl     = "300"
   records = [module.vpn.public_ip]
@@ -26,7 +26,8 @@ resource "aws_route53_record" "vpn" {
 
 resource "aws_route53_record" "vpn_www" {
   zone_id = var.r53_zone_id
-  name    = "www.vpn.${var.domain_name}"
+  name    = "www.${var.domain_name}"
   type    = "CNAME"
   ttl     = "300"
   records = ["vpn.${var.domain_name}"]
+}

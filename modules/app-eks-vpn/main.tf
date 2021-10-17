@@ -1,5 +1,5 @@
 locals {
-  cluster_name                  = "todo-app-${terraform.workspace}"
+  cluster_name                  = "todo-app-${var.environment}"
   k8s_service_account_namespace = "kube-system"
   k8s_service_account_name      = "cluster-autoscaler-aws-cluster-autoscaler-chart"
   cluster_hex_id                = substr(module.eks.cluster_oidc_issuer_url, 49, 82)
@@ -12,7 +12,7 @@ resource "aws_kms_key" "eks" {
 }
 
 data "aws_subnet" "vpn_subnet" {
-  id = element(module.vpc.public_subnets, length(module.vpc.public_subnets) - 1)
+  id = var.vpn_subnet_id
 }
 
 module "eks" {
@@ -20,9 +20,9 @@ module "eks" {
 
   cluster_version = "1.21"
   cluster_name    = local.cluster_name
-  vpc_id          = module.vpc.vpc_id
-  subnets         = module.vpc.private_subnets
-
+  vpc_id          = var.vpc_id
+  subnets         = var.subnet_ids
+  
   cluster_create_timeout                         = "1h"
   cluster_endpoint_private_access                = true
   cluster_create_endpoint_private_access_sg_rule = true

@@ -8,10 +8,6 @@ variable "map_roles" {
   }))
 }
 
-variable "workspace_iam_roles" {
-  type = map(any)
-}
-
 variable "instance_type" {
   type        = string
   default     = "t3.small"
@@ -34,44 +30,19 @@ variable "subnets" {
   description = "Subnets in CIDR notation"
 }
 
-variable "pub_key" {
-  type        = string
-  description = "Public key to add to EC2 Instance (VPN)"
-}
-
-variable "vpn_webui_port" {
-  type        = number
-  description = "Port for VPN's web UI"
-}
-
-variable "vpn_port" {
-  type        = number
-  description = "VPN Port"
-}
-
-variable "vpn_home_ip" {
+variable "vpn_subnet_id" {
   type        = string
   default     = ""
   description = "description"
 }
 
+variable "subnet_ids" {
+  type        = list(string)
+}
 
-variable "zone_id" {
+variable "vpn_security_group_id" {
   type        = string
-  default     = ""
-  description = "description"
-}
-
-variable "vpn_dns_name" {
-  type = list(string)
-}
-
-variable "cf_email" {
-  type = string
-}
-
-variable "cf_api_token" {
-  type = string
+  description = "VPN Security Group ID"
 }
 
 variable "map_accounts" {
@@ -92,12 +63,16 @@ variable "map_users" {
   }))
 }
 
-variable "domain_name" {
-  type = string
-}
-
 variable "aws_region" {
   type    = string
   default = "ap-southeast-2"
 }
 
+variable "environment" {
+  type        = string
+  description = "Name of environment"
+}
+
+variable "vpc_id" {
+  type        = string
+}

@@ -10,7 +10,6 @@ module "iam_assumable_role_admin" {
   oidc_fully_qualified_subjects = ["system:serviceaccount:${local.k8s_service_account_namespace}:${local.k8s_service_account_name}"]
 }
 
-
 resource "aws_iam_role_policy_attachment" "workers_autoscaling" {
   policy_arn = aws_iam_policy.worker_autoscaling.arn
   role       = module.eks.worker_iam_role_name
@@ -70,9 +69,9 @@ module "r53_policy" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-policy"
   version = "~> 4.3"
 
-  name        = "CertManagerRoute53Management"
+  name        = "Route53Management"
   path        = "/"
-  description = "Grants required permissions for Cert Manager role to manage route53"
+  description = "Grants required permissions for Cert Manager and External-DNS role(s) to manage route53"
 
   policy = <<EOF
 {
@@ -104,8 +103,8 @@ module "r53_policy" {
 EOF
 }
 
-resource "aws_iam_role" "dns_manager" {
-  name = "DNSManager"
+resource "aws_iam_role" "cert_manager" {
+  name = "CertManagerKubernetesServiceRole"
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -119,6 +118,28 @@ resource "aws_iam_role" "dns_manager" {
           "StringEquals" : {
             "oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}:sub" : [
               "system:serviceaccount:cert-manager:cert-manager",
+            ]
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "external_dns" {
+  name = "ExternalDNSKubernetesServiceRole"
+  assume_role_policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : "sts:AssumeRoleWithWebIdentity",
+        "Principal" : {
+          "Federated" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}"
+        },
+        "Condition" : {
+          "StringEquals" : {
+            "oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}:sub" : [
               "system:serviceaccount:external-dns:external-dns"
             ]
           }
@@ -128,11 +149,15 @@ resource "aws_iam_role" "dns_manager" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "test-attach" {
-  role       = aws_iam_role.dns_manager.name
+resource "aws_iam_role_policy_attachment" "cert_manager" {
+  role       = aws_iam_role.cert_manager.name
   policy_arn = module.r53_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "external_dns" {
+  role       = aws_iam_role.external_dns.name
+  policy_arn = module.r53_policy.arn
+}
 
 /* IRSA - Role to manage Terraform Resources - Used by GitHub Actions Runner*/
 resource "aws_iam_role" "github_actions_terraform" {
