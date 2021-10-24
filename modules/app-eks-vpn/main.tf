@@ -22,7 +22,6 @@ module "eks" {
   cluster_name    = local.cluster_name
   vpc_id          = var.vpc_id
   subnets         = var.subnet_ids
-  
   cluster_create_timeout                         = "1h"
   cluster_endpoint_private_access                = true
   cluster_create_endpoint_private_access_sg_rule = true

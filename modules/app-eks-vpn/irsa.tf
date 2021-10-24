@@ -31,35 +31,12 @@ data "aws_iam_policy_document" "worker_autoscaling" {
       "autoscaling:DescribeAutoScalingInstances",
       "autoscaling:DescribeLaunchConfigurations",
       "autoscaling:DescribeTags",
-      "ec2:DescribeLaunchTemplateVersions",
-    ]
-
-    resources = ["*"]
-  }
-
-  statement {
-    sid    = "eksWorkerAutoscalingOwn"
-    effect = "Allow"
-
-    actions = [
       "autoscaling:SetDesiredCapacity",
       "autoscaling:TerminateInstanceInAutoScalingGroup",
-      "autoscaling:UpdateAutoScalingGroup",
+      "ec2:DescribeLaunchTemplateVersions"
     ]
 
     resources = ["*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "autoscaling:ResourceTag/kubernetes.io/cluster/${module.eks.cluster_id}"
-      values   = ["owned"]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "autoscaling:ResourceTag/k8s.io/cluster-autoscaler/enabled"
-      values   = ["true"]
-    }
   }
 }
 
@@ -160,30 +137,41 @@ resource "aws_iam_role_policy_attachment" "external_dns" {
 }
 
 /* IRSA - Role to manage Terraform Resources - Used by GitHub Actions Runner*/
-resource "aws_iam_role" "github_actions_terraform" {
-  name = "GitHubActionsTerraform"
-  assume_role_policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Effect" : "Allow",
-        "Action" : "sts:AssumeRoleWithWebIdentity",
-        "Principal" : {
-          "Federated" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}"
-        },
-        "Condition" : {
-          "StringEquals" : {
-            "oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}:sub" : [
-              "system:serviceaccount:actions-runner-controller:actions-terraform-runner",
-            ]
-          }
-        }
-      }
-    ]
-  })
+
+module "iam_assumable_role_admin_gh_actions" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
+
+  create_role                   = true
+  role_name                     = "GithubActionsTerraform"
+  provider_url                  = replace(module.eks.cluster_oidc_issuer_url, "https://", "")
+  role_policy_arns              = ["arn:aws:iam::aws:policy/AdministratorAccess"]
+  oidc_fully_qualified_subjects = ["system:serviceaccount:actions-runner-controller:actions-terraform-runner"]
 }
 
-resource "aws_iam_role_policy_attachment" "github_actions_terraform" {
-  role       = aws_iam_role.github_actions_terraform.name
-  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
-}
+# resource "aws_iam_role" "github_actions_terraform" {
+#   name = "GitHubActionsTerraform"
+#   assume_role_policy = jsonencode({
+#     "Version" : "2012-10-17",
+#     "Statement" : [
+#       {
+#         "Effect" : "Allow",
+#         "Action" : "sts:AssumeRoleWithWebIdentity",
+#         "Principal" : {
+#           "Federated" : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}"
+#         },
+#         "Condition" : {
+#           "StringEquals" : {
+#             "oidc.eks.${var.aws_region}.amazonaws.com/id/${local.cluster_hex_id}:sub" : [
+#               "system:serviceaccount:actions-runner-controller:actions-terraform-runner",
+#             ]
+#           }
+#         }
+#       }
+#     ]
+#   })
+# }
+
+# resource "aws_iam_role_policy_attachment" "github_actions_terraform" {
+#   role       = aws_iam_role.github_actions_terraform.name
+#   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+# }

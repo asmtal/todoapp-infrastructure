@@ -1,0 +1,159 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: |
+  This Cloudformation template creates an S3 bucket and DynamoDB table suitable
+  for a Terraform S3 State Backend. Using this template avoids the problem of
+  needing to use a Terraform module to create a state backend before you have a
+  state backend for that module.
+
+Parameters:
+  Name:
+    Description: |
+      Name of the S3 bucket, DynamoDB table, and IAM role;
+      Defaults to "terraform-state-AWS_ACCOUNT_ID"
+    Default: ""
+    Type: String
+  NoncurrentVersionExpirationInDays:
+    Description: Number of days after which older state versions are purged
+    Default: 90
+    Type: Number
+
+
+Conditions:
+  GenerateNames: !Equals [!Ref Name, ""]
+
+Resources:
+  KMSKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: Terraform state backend
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Id: backend
+        Statement:
+        - Sid: EnableKeyManagement
+          Effect: Allow
+          Principal:
+            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+          NotAction:
+          - kms:Encrypt
+          - kms:Decrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey*
+          Resource: '*'
+        - Sid: AllowStateBackend
+          Effect: Allow
+          Principal:
+            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+          Action:
+          - kms:Encrypt
+          - kms:Decrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey*
+          Resource: '*'
+          Condition:
+            StringEquals:
+              "kms:ViaService":
+              - !Sub "s3.${AWS::Region}.amazonaws.com"
+              - !Sub "dynamodb.${AWS::Region}.amazonaws.com"
+
+  KMSKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub "alias/${StateBucket}"
+      TargetKeyId: !GetAtt KMSKey.Arn
+
+  LockTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: LockID
+        AttributeType: S
+      KeySchema:
+      - AttributeName: LockID
+        KeyType: HASH
+      SSESpecification:
+        KMSMasterKeyId: !Ref KMSKey
+        SSEEnabled: true
+        SSEType: KMS
+      TableName: !Ref StateBucket
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W78
+            reason: Terraform lock tables do not need to be backed up
+
+  StateBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !Ref KMSKey
+      BucketName: !If
+      - GenerateNames
+      - !Sub "terraform-state-${AWS::AccountId}"
+      - !Ref Name
+      LifecycleConfiguration:
+        Rules:
+        - Id: ExpireOldVersions
+          NoncurrentVersionExpirationInDays: !Ref NoncurrentVersionExpirationInDays
+          Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W35
+            reason: Access logs are managed via Cloudtrail
+
+  StateBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Bucket: !Ref StateBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Sid: RequireObjectEncryption
+          Effect: Deny
+          Action:
+          - s3:PutObject
+          Principal: "*"
+          Resource: !Sub "${StateBucket.Arn}/*"
+          Condition:
+            StringNotEquals:
+              "s3:x-amz-server-side-encryption-aws-kms-key-id": !GetAtt KMSKey.Arn
+
+Outputs:
+  KmsKeyAlias:
+    Description: Alias of the KMS key used to encrypt Terraform state
+    Value: !Ref KMSKeyAlias
+  KmsKeyId:
+    Description: ID of the KMS key used to encrypt Terraform state
+    Value: !GetAtt KMSKey.Arn
+  LockTableName:
+    Description: Name of the DynamoDB table used to lock Terraform state
+    Value: !Ref LockTable
+  Region:
+    Description: Region in which the S3 state backend resources are created
+    Value: !Ref AWS::Region
+  StateBucketName:
+    Description: Name of the S3 bucket containing Terraform state
+    Value: !Ref StateBucket

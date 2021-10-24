@@ -52,3 +52,47 @@ module "vpn" {
   domain_name     = "vpn.dev.tinakori.dev"
   vpn_client_cidr = "172.16.1.0/24"
 }
+
+# Create SG with Allow rules from VPN and local subnets.
+
+resource "aws_security_group" "internal_ingress" {
+  name        = "internal-ingress"
+  description = "Allow TLS inbound traffic"
+  vpc_id      = module.vpc.vpc_id
+}
+
+resource "aws_security_group_rule" "internal-ingress-443" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.security_group_id
+  security_group_id = aws_security_group.internal_ingress.id
+}
+
+resource "aws_security_group_rule" "internal-ingress-80" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  source_security_group_id = module.vpn.security_group_id
+  security_group_id = aws_security_group.internal_ingress.id
+}
+
+# resource "aws_security_group_rule" "internal-ingress-allow-all-from-cluster" {
+#   type              = "ingress"
+#   from_port         = 0
+#   to_port           = 0
+#   protocol          = "-1"
+#   source_security_group_id = module.eks_cluster.cluster_sg_id
+#   security_group_id = aws_security_group.internal_ingress.id
+# }
+
+resource "aws_security_group_rule" "internal-ingress-egress-rule" {
+  type              = "egress"
+  to_port           = 0
+  from_port         = 0
+  protocol          = "-1"
+  source_security_group_id = module.vpn.security_group_id
+  security_group_id = aws_security_group.internal_ingress.id
+}

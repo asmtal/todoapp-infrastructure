@@ -20,6 +20,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">=3.40"
     }
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = ">= 2.0"
+    }
   }
   backend "s3" {
     bucket         = "terraform-state-jfreeman-dev"
@@ -49,4 +53,16 @@ module "iam_assumable_roles" {
   poweruser_role_name         = "Developer"
 
   create_readonly_role = false
+}
+
+module "s3_bucket" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+
+  bucket = "todo-backend-ci-files"
+  acl    = "private"
+
+  versioning = {
+    enabled = true
+  }
+
 }

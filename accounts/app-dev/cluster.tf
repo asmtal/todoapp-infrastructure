@@ -7,7 +7,11 @@ module "eks_cluster" {
   map_roles             = var.map_roles
   map_accounts          = var.map_accounts
   map_users             = var.map_users
-  instance_type         = "t3.small"
-  asg_max_size          = 3
+  instance_type         = "t3a.medium"
+  asg_max_size          = 4
   subnet_ids            = module.vpc.private_subnets
+}
+
+provider "kubernetes" {
+  config = "~/.kube/kubeconfig_todo-app-development"
 }

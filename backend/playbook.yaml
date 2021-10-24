@@ -61,3 +61,15 @@
       profile: "{{ website_profile }}"
       template_parameters:
         Name: terraform-state-jfreeman-website
+
+  - name: Apply CloudFormation template to Development Account (For Application Terraform)
+    amazon.aws.cloudformation:
+      stack_name: "terraform-state-jfreeman-dev-todo-backend"
+      state: "present"
+      region: "ap-southeast-2"
+      disable_rollback: false
+      template: "./terraform-state-backend-dev.template"
+      profile: "{{ dev_profile }}"
+      template_parameters:
+        Name: terraform-state-jfreeman-dev-todo-backend
+
