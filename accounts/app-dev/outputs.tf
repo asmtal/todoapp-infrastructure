@@ -62,17 +62,17 @@ output "route53_zone_arn" {
   value = aws_route53_zone.main.name_servers
 }
 
-output "vpn_private_ip" {
-  value = module.vpn.private_ip
-}
+# output "vpn_private_ip" {
+#   value = module.vpn.private_ip
+# }
 
-output "vpn_public_ip" {
-  value = module.vpn.public_ip
-}
+# output "vpn_public_ip" {
+#   value = module.vpn.public_ip
+# }
 
-output "vpn_security_group_id" {
-  value = module.vpn.security_group_id
-}
+# output "vpn_security_group_id" {
+#   value = module.vpn.security_group_id
+# }
 
 # output "cluster_id" {
 #   description = "Endpoint for EKS control plane."
