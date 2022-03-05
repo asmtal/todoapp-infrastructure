@@ -29,5 +29,6 @@ resource "aws_route53_record" "vpn_www" {
   name    = "www.${var.domain_name}"
   type    = "CNAME"
   ttl     = "300"
-  records = ["vpn.${var.domain_name}"]
+  records = ["${var.domain_name}"]
 }
+

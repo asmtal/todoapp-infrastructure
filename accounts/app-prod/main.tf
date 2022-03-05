@@ -49,12 +49,12 @@ module "iam_assumable_roles" {
 }
 
 resource "aws_route53_zone" "main" {
-  name = "tinakori.dev"
+  name = "app.jxel.dev"
 }
 
 resource "aws_route53_record" "dev-ns" {
   zone_id = aws_route53_zone.main.zone_id
-  name    = "dev.tinakori.dev"
+  name    = "dev.app.jxel.dev"
   type    = "NS"
   ttl     = "30"
   records = var.dev_ns
