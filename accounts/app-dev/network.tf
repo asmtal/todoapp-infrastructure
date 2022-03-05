@@ -34,7 +34,7 @@ module "vpc" {
 
 
 resource "aws_route53_zone" "main" {
-  name = "dev.tinakori.dev"
+  name = "dev.app.jxel.dev"
 }
 
 module "vpn" {
@@ -49,7 +49,7 @@ module "vpn" {
   vpn_webui_port  = var.vpn_webui_port
   vpn_port        = var.vpn_port
   r53_zone_id     = aws_route53_zone.main.zone_id
-  domain_name     = "vpn.dev.tinakori.dev"
+  domain_name     = "vpn.dev.app.jxel.dev"
   vpn_client_cidr = "172.16.1.0/24"
 }
 
@@ -59,6 +59,15 @@ resource "aws_security_group" "internal_ingress" {
   name        = "internal-ingress"
   description = "Allow TLS inbound traffic"
   vpc_id      = module.vpc.vpc_id
+}
+
+resource "aws_security_group_rule" "internal-ingress-egress-rule" {
+  type              = "egress"
+  to_port           = 0
+  from_port         = 0
+  protocol          = "-1"
+  source_security_group_id = module.vpn.security_group_id
+  security_group_id = aws_security_group.internal_ingress.id
 }
 
 resource "aws_security_group_rule" "internal-ingress-443" {
@@ -87,12 +96,3 @@ resource "aws_security_group_rule" "internal-ingress-80" {
 #   source_security_group_id = module.eks_cluster.cluster_sg_id
 #   security_group_id = aws_security_group.internal_ingress.id
 # }
-
-resource "aws_security_group_rule" "internal-ingress-egress-rule" {
-  type              = "egress"
-  to_port           = 0
-  from_port         = 0
-  protocol          = "-1"
-  source_security_group_id = module.vpn.security_group_id
-  security_group_id = aws_security_group.internal_ingress.id
-}
